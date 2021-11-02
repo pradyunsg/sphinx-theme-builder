@@ -5,10 +5,10 @@ from click import Group
 from click.testing import CliRunner
 
 
-class TestBuildCommand:
+class TestPackageCommand:
     def test_calls_build(self, runner: CliRunner, cli: Group) -> None:
         with mock.patch("subprocess.run") as mocked_run:
-            runner.invoke(cli, ["build"])
+            runner.invoke(cli, ["package"])
 
         mocked_run.assert_has_calls(
             [mock.call([sys.executable, "-m", "build"], check=True)]
