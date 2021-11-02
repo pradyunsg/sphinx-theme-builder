@@ -1,0 +1,60 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "sphinx-theme-builder"
+dynamic = ["version"]
+authors = [
+    {name = "Pradyun Gedam", email = "mail@pradyunsg.me"},
+]
+
+description = "Streamlined Sphinx theme development."
+readme = "README.md"
+
+dependencies = [
+  "packaging",
+  "rich",
+  "tomli",
+]
+requires-python = "~=3.7"
+
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Framework :: Sphinx",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3",
+  "Topic :: Documentation",
+  "Topic :: Software Development :: Documentation",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.optional-dependencies]
+cli = [
+  "build",
+  "click",
+  "sphinx-autobuild",
+]
+
+[project.urls]
+Documentation = "https://sphinx-theme-builder.readthedocs.io/en/latest/"
+Source = "https://github.com/pradyunsg/sphinx_theme_builder"
+
+[project.scripts]
+stb = "sphinx_theme_builder._internal.cli:main"
+
+[tool.flit.module]
+name = "sphinx_theme_builder"
+
+[tool.coverage.report]
+exclude_lines = [
+    # Use a clearer message for what to skip
+    "coverage: skip",
+    # Don't complain if code that needs to be run as main isn't run
+    "if __name__ == .__main__.:",
+]
