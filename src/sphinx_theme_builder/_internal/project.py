@@ -273,23 +273,23 @@ class Project:
 
     @property
     def assets_path(self) -> Path:
-        return self.source_path / "assets"
+        return self.python_package_path / "assets"
 
     @property
     def theme_conf_path(self) -> Path:
         return self.theme_path / "theme.conf"
 
     @property
-    def input_script_path(self) -> Path:
-        return self.assets_path / "scripts" / (self.kebab_name + ".js")
+    def input_scripts_path(self) -> Path:
+        return self.assets_path / "scripts"
 
     @property
     def output_script_path(self) -> Path:
         return self.theme_static_path / "scripts" / (self.kebab_name + ".js")
 
     @property
-    def input_stylesheet_path(self) -> Path:
-        return self.assets_path / "styles" / (self.kebab_name + ".scss")
+    def input_stylesheets_path(self) -> Path:
+        return self.assets_path / "styles"
 
     @property
     def output_stylesheet_path(self) -> Path:

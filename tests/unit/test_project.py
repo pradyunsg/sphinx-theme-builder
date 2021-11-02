@@ -187,20 +187,20 @@ class TestProjectFromPath:
             project.theme_static_path
             == tmp_path / "src" / "magic" / "theme" / "magic" / "static"
         )
-        assert project.assets_path == tmp_path / "src" / "assets"
+        assert project.assets_path == tmp_path / "src" / "magic" / "assets"
         assert (
             project.theme_conf_path
             == tmp_path / "src" / "magic" / "theme" / "magic" / "theme.conf"
         )
-        assert project.input_script_path == (
-            tmp_path / "src" / "assets" / "scripts" / "magic.js"
+        assert project.input_scripts_path == (
+            tmp_path / "src" / "magic" / "assets" / "scripts"
         )
         assert project.output_script_path == (
             project.theme_static_path / "scripts" / "magic.js"
         )
         assert (
-            project.input_stylesheet_path
-            == tmp_path / "src" / "assets" / "styles" / "magic.scss"
+            project.input_stylesheets_path
+            == tmp_path / "src" / "magic" / "assets" / "styles"
         )
         assert (
             project.output_stylesheet_path
