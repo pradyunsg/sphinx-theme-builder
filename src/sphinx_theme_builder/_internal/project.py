@@ -9,6 +9,7 @@ from typing import Any, Dict, Literal, Mapping, NewType, Optional, Tuple
 import tomli
 from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
+from rich.text import Text
 
 from .errors import DiagnosticError
 
@@ -70,7 +71,7 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Metadata, Dict[str, Any]]:
 
     if (project := pyproject_data.get("project", None)) is None:
         raise ImproperProjectMetadata(
-            message="Could not find [project] table.",
+            message=Text("Could not find [project] table."),
             context=f"in file {pyproject}",
             hint_stmt=None,
             reference="pyproject-no-project-table",
@@ -78,7 +79,7 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Metadata, Dict[str, Any]]:
 
     if (kebab_name := project.get("name", None)) is None:
         raise ImproperProjectMetadata(
-            message="Could not find `name` in [project] table.",
+            message=Text("Could not find `name` in [project] table."),
             context=f"in file {pyproject}",
             hint_stmt=None,
             reference="pyproject-no-name-in-project-table",
@@ -86,7 +87,7 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Metadata, Dict[str, Any]]:
 
     if kebab_name != (canonical_name := canonicalize_name(kebab_name)):
         raise ImproperProjectMetadata(
-            message="Found non-canonical `name` declared in the [project] table.",
+            message=Text("Found non-canonical `name` declared in the [project] table."),
             context=(
                 f"Got '{kebab_name}', expected '{canonical_name}'\n"
                 f"in file {pyproject}"
@@ -115,8 +116,12 @@ def _determine_version(
         declared_in_pyproject = metadata["version"]
         if not isinstance(declared_in_pyproject, str):
             raise ImproperProjectMetadata(
-                message="Expected 'version' in the [project] table to be a string.",
-                context=f"Got {declared_in_pyproject} which is {type(declared_in_pyproject)} instead.",
+                message=Text(
+                    "Expected 'version' in the [project] table to be a string."
+                ),
+                context=(
+                    f"Got {declared_in_pyproject} which is {type(declared_in_pyproject)} instead."
+                ),
                 hint_stmt=None,
                 reference="pyproject-invalid-version",
             )
@@ -152,7 +157,7 @@ def _determine_version(
                 f"\nFrom `pyproject.toml`, got {declared_in_pyproject}"
                 f"\nFrom `__init__.py`, got {declared_in_python}"
             ),
-            hint_stmt=(
+            hint_stmt=Text(
                 "It is a good idea to declare the version in Python alone.\n"
                 "You can do this by removing `project.version` from `pyproject.toml` "
                 'and including "version" in the `project.dynamic` list. Like so:\n\n'
@@ -169,7 +174,7 @@ def _determine_version(
                     'include "version" in `project.dynamic` list.'
                 ),
                 context=f"From `__init__.py`, got version {declared_in_python}",
-                hint_stmt=(
+                hint_stmt=Text(
                     'You solve this by including "version" in the `project.dynamic` '
                     "list. Like so:\n\n"
                     "[project]\n"
