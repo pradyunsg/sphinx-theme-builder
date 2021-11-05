@@ -15,13 +15,6 @@ from .project import Project
 from .wheelfile import WheelFile
 
 
-def _get_compiled_assets(project: Project) -> Tuple[str, ...]:
-    return (
-        project.output_script_path.relative_to(project.location).as_posix(),
-        project.output_stylesheet_path.relative_to(project.location).as_posix(),
-    )
-
-
 def _get_vcs_tracked_files(path: Path) -> Optional[Tuple[str, ...]]:
     if not (path / ".git").is_dir():
         return None
@@ -39,7 +32,7 @@ def _sdist_filter(
     project: Project,
 ) -> Callable[[tarfile.TarInfo], Optional[tarfile.TarInfo]]:
     """Create a filter to pass to tarfile.add, for this project."""
-    compiled_assets = _get_compiled_assets(project)
+    compiled_assets = project.compiled_assets
     tracked_files = _get_vcs_tracked_files(project.location)
 
     def _filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
@@ -160,7 +153,7 @@ def generate_wheel_distribution(
     with WheelFile(
         path=wheel_path,
         tracked_files=_get_vcs_tracked_files(project.location),
-        compiled_assets=_get_compiled_assets(project),
+        compiled_assets=project.compiled_assets,
     ) as wheel:
         if editable:
             # Generate a .pth file, for editable installs. There's an enforced src/

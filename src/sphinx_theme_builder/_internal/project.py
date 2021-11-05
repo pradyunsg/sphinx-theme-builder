@@ -304,6 +304,22 @@ class Project:
     def output_extension_stylesheet_path(self) -> Path:
         return self.theme_static_path / "styles" / (self.kebab_name + "-extensions.css")
 
+    @property
+    def compiled_assets(self) -> Tuple[str, ...]:
+        """A sequence of compiled assets, as relative POSIX paths (to project root)."""
+        files = tuple(
+            map(
+                (lambda path: path.relative_to(self.location).as_posix()),
+                [
+                    self.output_script_path,
+                    self.output_stylesheet_path,
+                    self.output_extension_stylesheet_path,
+                ],
+            )
+        )
+        # Tack on the .map files
+        return files + tuple(map((lambda x: x + ".map"), files))
+
     def validate_file_structure_and_contents(self) -> None:
         """Validate the project's file structure and check that it matches the template.
 
