@@ -1,7 +1,8 @@
 import sys
-from typing import Any, Dict, List, Optional, Protocol, Type
+from typing import Any, Dict, List, Optional, Protocol, TextIO, Type
 
 import rich
+from rich.text import Text
 
 from ..errors import DiagnosticError
 from ..ui import log
@@ -11,21 +12,23 @@ try:
     import click
     import sphinx_autobuild  # type: ignore  # noqa
 except ImportError as import_error:
-    error = DiagnosticError(
-        reference="missing-command-line-dependencies",
-        message=(
-            "Could not import a package that is required for the `stb` command line."
+    rich.print(
+        DiagnosticError(
+            reference="missing-command-line-dependencies",
+            message=(
+                "Could not import a package that is required for the `stb` command line."
+            ),
+            context=str(import_error),
+            note_stmt=(
+                "The optional [blue]cli[/] dependencies of this package are missing."
+            ),
+            hint_stmt=(
+                "During installation, make sure to include the `\\[cli]`. For example:\n"
+                'pip install "sphinx-theme-builder\\[cli]"'
+            ),
         ),
-        context=str(import_error),
-        note_stmt=(
-            "The optional [blue]cli[/] dependencies of this package are missing."
-        ),
-        hint_stmt=(
-            "During installation, make sure to include the `\\[cli]`. For example:\n"
-            'pip install "sphinx-theme-builder\\[cli]"'
-        ),
+        file=sys.stderr,
     )
-    rich.print(error, file=sys.stderr)
     sys.exit(1)
 
 
@@ -80,19 +83,60 @@ def compose_command_line() -> click.Group:
     return cli
 
 
+def present_click_usage_error(error: click.UsageError, *, stream: TextIO) -> None:
+    assert error.ctx
+
+    rich.print(
+        Text.from_markup("[red]error:[/] ") + Text(error.format_message()),
+        file=stream,
+    )
+
+    # Usage
+    usage_parts = error.ctx.command.collect_usage_pieces(error.ctx)
+    usage = " ".join([error.ctx.command_path] + usage_parts)
+    print(file=stream)
+    print("Usage:", file=stream)
+    print(" ", usage, file=stream)
+
+    # --help
+    option = "--help"
+    command = error.ctx.command_path
+    print(file=stream)
+    rich.print(
+        f"Try [green]{command} {option}[/] for more information.",
+        file=stream,
+    )
+
+
 def main(args: Optional[List[str]] = None) -> None:
     """The entrypoint for command line stuff."""
     cli = compose_command_line()
     try:
-        cli(args=args)
+        cli(args=args, standalone_mode=False)
+    except click.UsageError as error:
+        present_click_usage_error(error, stream=sys.stderr)
+        sys.exit(error.exit_code)  # uses exit codes 1 and 2
+    except click.ClickException as error:
+        error.show(sys.stderr)
+        sys.exit(error.exit_code)  # uses exit codes 1 and 2
     except DiagnosticError as error:
-        rich.get_console().print(error)
-        sys.exit(1)
+        rich.print(error, file=sys.stderr)
+        sys.exit(3)
     except Exception:
-        console = rich.get_console()
-        console.print_exception(show_locals=True)
-        log(
-            "A fatal error occured. If the above error message is unclear, please file "
-            "an issue against the project."
+        console = rich.console.Console(stderr=True)
+        console.print_exception(width=console.width, show_locals=True, word_wrap=True)
+        console.print(
+            DiagnosticError(
+                reference="crash",
+                message="A fatal error occurred.",
+                context="See above for a detailed Python traceback.",
+                note_stmt=(
+                    "If you file an issue, please include the full traceback above."
+                ),
+                hint_stmt=(
+                    "This might be due to an issue in sphinx-theme-builder, one of the "
+                    "tools it uses internally, or your code."
+                ),
+            ),
         )
-        sys.exit(2)
+        sys.exit(4)
