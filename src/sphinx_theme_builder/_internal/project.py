@@ -344,17 +344,17 @@ class Project:
                 reference="missing-theme-conf",
             )
 
-        if not self.input_script_path.exists():
+        if not self.input_scripts_path.exists():
             raise InvalidProjectStructure(
-                message=f"{self.input_script_path} does not exist.",
+                message=f"{self.input_scripts_path} does not exist.",
                 context="It is required for this package to be a Sphinx theme.",
                 hint_stmt=None,
                 reference="missing-javascript",
             )
 
-        if not self.input_stylesheet_path.exists():
+        if not self.input_stylesheets_path.exists():
             raise InvalidProjectStructure(
-                message=f"{self.input_stylesheet_path} does not exist.",
+                message=f"{self.input_stylesheets_path} does not exist.",
                 context="It is required for this package to be a Sphinx theme.",
                 hint_stmt=None,
                 reference="missing-stylesheet",
