@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -6,6 +7,7 @@ from pathlib import Path
 
 import click
 
+from ..errors import DiagnosticError
 from ..project import Project
 from ..ui import log
 
@@ -21,6 +23,14 @@ class ServeCommand:
             show_default=True,
             show_choices=True,
             help="The Sphinx builder to build the documentation with",
+        ),
+        click.Option(
+            ["--port"],
+            type=click.INT,
+            default=0,
+            show_default=True,
+            show_choices=True,
+            help="The port to start the server on. Uses a random free port by default.",
         ),
         click.Option(
             ["--open-browser / --no-open-browser"],
@@ -52,29 +62,27 @@ class ServeCommand:
     def run(
         self,
         *,
+        port: int,
         source_directory: Path,
         builder: str,
         open_browser: bool,
         override_theme: bool,
     ) -> int:
         project = Project.from_cwd()
-        log("Invoking [bold]sphinx-autobuild[/] to run.")
 
-        # Hard-coded for now, will be determined automatically later.
         with tempfile.TemporaryDirectory() as build_directory:
             command = [
                 sys.executable,
                 "-m",
                 "sphinx_autobuild",
-                "--watch",
-                os.fsdecode(project.theme_path),
-                f"--ignore={project.output_script_path}",
-                f"--ignore={project.output_stylesheet_path}",
-                f"--ignore={project.output_extension_stylesheet_path}",
-                "-a",  # rebuild all pages on change, to ensure theme changes are reflected.
+                # sphinx-autobuild flags
+                f"--watch={os.fsdecode(project.source_path)}",
+                f"--re-ignore=({'|'.join(map(re.escape, project.compiled_assets))})",
+                f"--port={port}",  # use a random free port
+                f"--pre-build={sys.executable} -m sphinx_theme_builder compile",
+                # Sphinx flags
+                "-a",  # full rebuild to ensure static assets are copied on each change
                 f"-b={builder}",
-                "--pre-build",
-                f"{sys.executable} -m sphinx_theme_builder compile",
                 os.fsdecode(source_directory),
                 os.fsdecode(build_directory),
             ]
@@ -85,5 +93,14 @@ class ServeCommand:
                 # override the theme, set in conf.py
                 command.extend(["-D", f"html_theme={project.kebab_name}"])
 
-            subprocess.run(command, check=True)
+            log("Invoking [bold]sphinx-autobuild[/] to run.")
+            try:
+                subprocess.run(command, check=True)
+            except subprocess.CalledProcessError as error:
+                raise DiagnosticError(
+                    reference="autobuild-failed",
+                    message=f"[b]sphinx-autobuild[/] exited with a non-zero exit code {error.returncode}.",
+                    context="See above for failure output from the underlying tooling.",
+                    hint_stmt=None,
+                ) from error
         return 0
