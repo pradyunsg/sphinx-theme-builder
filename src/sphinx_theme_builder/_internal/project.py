@@ -223,7 +223,9 @@ class Project:
 
     @classmethod
     def from_cwd(cls) -> "Project":
-        return cls.from_path(Path.cwd())
+        retval = cls.from_path(Path.cwd())
+        retval.validate_file_structure_and_contents()
+        return retval
 
     @classmethod
     def from_path(cls, path: Path) -> "Project":
@@ -387,7 +389,6 @@ class Project:
             )
 
         # TODO: Validate PEP 621 data.
-        # TODO: Move this validation to a __post_init__ method.
 
     def get_metadata_file_contents(self) -> str:
         lines = [

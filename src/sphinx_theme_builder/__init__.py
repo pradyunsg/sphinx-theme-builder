@@ -61,8 +61,6 @@ def build_sdist(
     """
     with _clean_error_presentation():
         project = Project.from_cwd()
-        project.validate_file_structure_and_contents()
-
         return _generate_sdist(project, destination=Path(sdist_directory))
 
 
@@ -93,8 +91,6 @@ def build_wheel(
     """
     with _clean_error_presentation():
         project = Project.from_cwd()
-        project.validate_file_structure_and_contents()
-
         with _ensure_has_metadata(project, metadata_directory) as metadata_path:
             return _generate_wheel(
                 project,
@@ -121,8 +117,6 @@ def build_editable(
     """
     with _clean_error_presentation():
         project = Project.from_cwd()
-        project.validate_file_structure_and_contents()
-
         with _ensure_has_metadata(project, metadata_directory) as metadata_path:
             return _generate_wheel(
                 project,

@@ -16,7 +16,5 @@ class CompileCommand:
     def run(self) -> int:
         """Make it happen."""
         project = Project.from_cwd()
-        project.validate_file_structure_and_contents()
         generate_assets(project)
-
         return 0
