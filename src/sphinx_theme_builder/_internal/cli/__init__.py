@@ -121,6 +121,9 @@ def main(args: Optional[List[str]] = None) -> None:
     cli = compose_command_line()
     try:
         cli(args=args, standalone_mode=False)
+    except click.Abort:
+        rich.print(r"[cyan]\[stb][/] [red]Aborting![/]", file=sys.stderr)
+        sys.exit(1)
     except click.UsageError as error:
         present_click_usage_error(error, stream=sys.stderr)
         sys.exit(error.exit_code)  # uses exit codes 1 and 2
