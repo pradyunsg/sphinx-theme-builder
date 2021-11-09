@@ -51,14 +51,14 @@ def run_in(
             return subprocess.run(args, check=True, **kwargs)
 
 
-def create_nodeenv(nodeenv: Path) -> None:
+def create_nodeenv(nodeenv: Path, node_version: str) -> None:
     log("[yellow]#[/] [cyan]Generating new [magenta]nodeenv[/]!")
 
     command = [
         str(sys.executable),
         "-m",
         "nodeenv",
-        f"--node={NODE_VERSION}",
+        f"--node={node_version}",
         os.fsdecode(nodeenv),
     ]
     log(f"[magenta]$[/] [blue]python {' '.join(command[1:])}[/]")
@@ -114,7 +114,7 @@ def generate_assets(project: Project) -> None:
     created_new_nodeenv = False
     if not nodeenv.exists():
         log("[yellow]#[/] [magenta]nodeenv[cyan] does not exist.[/]")
-        create_nodeenv(nodeenv)
+        create_nodeenv(nodeenv, NODE_VERSION)
         created_new_nodeenv = True
 
     # Checking the node version is a sanity check, and ensures that the environment is
