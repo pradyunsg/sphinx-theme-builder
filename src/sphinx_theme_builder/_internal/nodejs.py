@@ -10,9 +10,11 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
+from unittest.mock import patch
 
 from .errors import DiagnosticError
+from .passthrough import passthrough_run
 from .project import Project
 from .ui import log
 
@@ -23,17 +25,30 @@ _BIN_DIR = "Scripts" if os.name == "nt" else "bin"
 
 def run_in(
     nodeenv: Path, args: List[str], **kwargs: Any
-) -> "subprocess.CompletedProcess[bytes]":
+) -> "Optional[subprocess.CompletedProcess[bytes]]":
     """Run a command, using a binary from `nodeenv`."""
-    log(f"[magenta]$[/] [blue]{_NODEENV_DIR}/{_BIN_DIR}/{' '.join(args)}[/]")
+    assert nodeenv.name == _NODEENV_DIR
 
-    binaries = os.listdir(nodeenv / _BIN_DIR)
-    assert args[0] in binaries, (nodeenv, binaries, args)
+    log(f"[magenta](nodeenv) $[/] [blue]{_NODEENV_DIR}/{_BIN_DIR}/{' '.join(args)}[/]")
+    env = {
+        "NPM_CONFIG_PREFIX": os.fsdecode(nodeenv),
+        "npm_config_prefix": os.fsdecode(nodeenv),
+        "NODE_PATH": os.fsdecode(nodeenv / "lib" / "node_modules"),
+        "PATH": os.pathsep.join([os.fsdecode(nodeenv / "bin"), os.environ["PATH"]]),
+    }
 
-    args[0] = os.fsdecode(nodeenv / _BIN_DIR / args[0])
-    cmd = " ".join(shlex.quote(arg) for arg in args)
+    # Fully qualify the first argument.
+    args[0] = os.fsdecode(nodeenv / "bin" / args[0])
 
-    return subprocess.run(cmd, shell=True, check=True, **kwargs)
+    with patch.dict("os.environ", env):
+        if not kwargs:
+            returncode = passthrough_run(args)
+            if returncode:
+                cmd = " ".join(shlex.quote(arg) for arg in args)
+                raise subprocess.CalledProcessError(returncode=returncode, cmd=cmd)
+            return None
+        else:
+            return subprocess.run(args, check=True, **kwargs)
 
 
 def create_nodeenv(nodeenv: Path) -> None:
@@ -126,6 +141,7 @@ def generate_assets(project: Project) -> None:
         ) from error
 
     # Present the `node --version` output to the user.
+    assert process
     got = process.stdout.decode().strip()
     print(got)
 
