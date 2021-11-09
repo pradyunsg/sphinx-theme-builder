@@ -17,6 +17,9 @@ class PackageCommand:
     def run(self) -> int:
         """Make it happen."""
         log("[magenta]$[/] [blue]python -m build[/]")
-        subprocess.run([sys.executable, "-m", "build"], check=True)
+        try:
+            subprocess.run([sys.executable, "-m", "build"], check=True)
+        except subprocess.CalledProcessError as error:
+            return error.returncode
         log("[green]Done![/]")
         return 0
