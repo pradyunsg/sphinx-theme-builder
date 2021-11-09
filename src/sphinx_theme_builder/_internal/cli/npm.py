@@ -7,7 +7,8 @@ from typing import List, Tuple
 import click
 
 from ..errors import DiagnosticError
-from ..nodejs import NODEENV_DIRNAME, run_in
+from ..nodejs import _NODEENV_DIR as NODEENV_DIRNAME
+from ..nodejs import run_in
 
 
 class NpmCommand:
