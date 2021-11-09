@@ -50,16 +50,8 @@ def run_in(
             return subprocess.run(args, check=True, **kwargs)
 
 
-def create_nodeenv(nodeenv: Path, node_version: str) -> None:
-    log("[yellow]#[/] [cyan]Generating new [magenta]nodeenv[/]!")
-
-    command = [
-        str(sys.executable),
-        "-m",
-        "nodeenv",
-        f"--node={node_version}",
-        os.fsdecode(nodeenv),
-    ]
+def _run_python_nodeenv(*args: str) -> None:
+    command = [str(sys.executable), "-m", "nodeenv", *args]
     log(f"[magenta]$[/] [blue]python {' '.join(command[1:])}[/]")
     try:
         subprocess.run(command, check=True)
@@ -74,6 +66,29 @@ def create_nodeenv(nodeenv: Path, node_version: str) -> None:
                 "that this tool is trying to fetch is no longer available."
             ),
         ) from error
+
+
+def _should_use_system_node(node_version: str) -> bool:
+    process = subprocess.run(["node", "--version"], capture_output=True)
+    if process.returncode:
+        return False
+    return process.stdout.decode().strip() == f"v{node_version}"
+
+
+def create_nodeenv(nodeenv: Path, node_version: str) -> None:
+    log(
+        "[yellow]#[/] [cyan]Generating new [magenta]nodeenv[/] with "
+        f"NodeJS [green]{node_version}[/]!"
+    )
+
+    if _should_use_system_node(node_version=node_version):
+        log("[yellow]#[/] Will use system nodeJS, since version matches.")
+        node_version = "system"
+
+    _run_python_nodeenv(
+        f"--node={node_version}",
+        os.fsdecode(nodeenv),
+    )
 
 
 def run_npm_build(nodeenv: Path) -> None:
