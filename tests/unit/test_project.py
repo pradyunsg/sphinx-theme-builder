@@ -37,6 +37,7 @@ class TestProjectFromPath:
                 [project]
                 name = 'magic-project'
                 version = '1.0'
+                license = { text = "MIT" }
                 """
             )
         )
@@ -50,8 +51,39 @@ class TestProjectFromPath:
         assert project.snake_name == "magic_project"
         assert project.kebab_name == "magic-project"
         assert project.location == tmp_path
-        assert dict(project.metadata) == {"name": "magic-project", "version": "1.0"}
-        assert project.version == Version("1.0")
+
+        assert project.metadata
+        assert project.metadata.version == Version("1.0")
+
+        assert project.python_package_path == tmp_path / "src" / "magic_project"
+        assert project.theme_path == (
+            tmp_path / "src" / "magic_project" / "theme" / "magic_project"
+        )
+        assert project.theme_conf_path == (
+            tmp_path
+            / "src"
+            / "magic_project"
+            / "theme"
+            / "magic_project"
+            / "theme.conf"
+        )
+        assert project.theme_static_path == (
+            tmp_path / "src" / "magic_project" / "theme" / "magic_project" / "static"
+        )
+        assert project.output_script_path == (
+            project.theme_static_path / "scripts" / "magic-project.js"
+        )
+        assert project.output_stylesheet_path == (
+            project.theme_static_path / "styles" / "magic-project.css"
+        )
+
+        assert project.assets_path == tmp_path / "src" / "magic_project" / "assets"
+        assert project.input_stylesheets_path == (
+            tmp_path / "src" / "magic_project" / "assets" / "styles"
+        )
+        assert project.input_scripts_path == (
+            tmp_path / "src" / "magic_project" / "assets" / "scripts"
+        )
 
     def test_rejects_without_pyproject_toml(self, tmp_path: Path) -> None:
         # GIVEN
@@ -143,6 +175,7 @@ class TestProjectFromPath:
                 [project]
                 name = "magic"
                 version = "0.1.2"
+                license = { text = "MIT" }
                 """
             )
         )
@@ -153,7 +186,7 @@ class TestProjectFromPath:
         project = Project.from_path(tmp_path)
 
         # THEN
-        assert project.version == Version("0.1.2")
+        assert project.metadata.version == Version("0.1.2")
 
     def test_works_with_proper_dynamic_version(self, tmp_path: Path) -> None:
         # GIVEN
@@ -163,6 +196,7 @@ class TestProjectFromPath:
                 [project]
                 name = "magic"
                 dynamic = ["version"]
+                license = { text = "MIT" }
                 """
             )
         )
@@ -180,32 +214,7 @@ class TestProjectFromPath:
         project = Project.from_path(tmp_path)
 
         # THEN
-        assert project.version == Version("1.2.3")
-        assert project.python_package_path == tmp_path / "src" / "magic"
-        assert project.theme_path == tmp_path / "src" / "magic" / "theme" / "magic"
-        assert (
-            project.theme_static_path
-            == tmp_path / "src" / "magic" / "theme" / "magic" / "static"
-        )
-        assert project.assets_path == tmp_path / "src" / "magic" / "assets"
-        assert (
-            project.theme_conf_path
-            == tmp_path / "src" / "magic" / "theme" / "magic" / "theme.conf"
-        )
-        assert project.input_scripts_path == (
-            tmp_path / "src" / "magic" / "assets" / "scripts"
-        )
-        assert project.output_script_path == (
-            project.theme_static_path / "scripts" / "magic.js"
-        )
-        assert (
-            project.input_stylesheets_path
-            == tmp_path / "src" / "magic" / "assets" / "styles"
-        )
-        assert (
-            project.output_stylesheet_path
-            == project.theme_static_path / "styles" / "magic.css"
-        )
+        assert project.metadata.version == Version("1.2.3")
 
     def test_rejects_when_no_version_is_declared(self, tmp_path: Path) -> None:
         # GIVEN
