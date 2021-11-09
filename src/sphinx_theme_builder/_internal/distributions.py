@@ -6,8 +6,8 @@ import posixpath
 import subprocess
 import tarfile
 import textwrap
-from pathlib import Path
-from typing import Callable, Optional, Tuple
+from pathlib import Path, PurePosixPath
+from typing import Callable, List, Optional, Set, Tuple
 
 from .errors import DiagnosticError
 from .nodejs import generate_assets
@@ -15,7 +15,16 @@ from .project import Project
 from .wheelfile import WheelFile
 
 
-def _get_vcs_tracked_files(path: Path) -> Optional[Tuple[str, ...]]:
+def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
+    names: Set[str] = set()
+    for path_str in posix_style_paths:
+        path = PurePosixPath(path_str)
+        names.update(parent.as_posix() for parent in path.parents)
+        names.add(path_str)
+    return tuple(names)
+
+
+def _get_vcs_tracked_names(path: Path) -> Optional[Tuple[str, ...]]:
     if not (path / ".git").is_dir():
         return None
 
@@ -23,22 +32,29 @@ def _get_vcs_tracked_files(path: Path) -> Optional[Tuple[str, ...]]:
         ["git", "ls-files", "--recurse-submodules", "-z"],
         cwd=path,
     )
-    return tuple(
+
+    tracked_files = [
         os.fsdecode(location) for location in outb.strip(b"\0").split(b"\0") if location
-    )
+    ]
+    return include_parent_paths(tracked_files)
 
 
 def _sdist_filter(
-    project: Project,
+    project: Project, base: str
 ) -> Callable[[tarfile.TarInfo], Optional[tarfile.TarInfo]]:
     """Create a filter to pass to tarfile.add, for this project."""
     compiled_assets = project.compiled_assets
-    tracked_files = _get_vcs_tracked_files(project.location)
+    tracked_names = _get_vcs_tracked_names(project.location)
 
     def _filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
-        name = tarinfo.name
-        # Exclude the entry for the root.
-        if not name:
+        # Include the entry for the root.
+        if tarinfo.name == base:
+            return tarinfo
+
+        name = tarinfo.name[len(base) + 1 :]
+
+        # Exclude hidden files
+        if name.startswith("."):
             return None
 
         # Exclude compiled pyc files.
@@ -50,7 +66,7 @@ def _sdist_filter(
             return None
 
         # Exclude things that are excluded from version control.
-        if tracked_files is not None and name not in tracked_files:
+        if tracked_names is not None and name not in tracked_names:
             return None
 
         return tarinfo
@@ -74,7 +90,7 @@ def generate_source_distribution(
     """
     os.makedirs(destination, exist_ok=True)
 
-    dashed_pair = f"{project.snake_name}-{project.version}"
+    dashed_pair = f"{project.snake_name}-{project.metadata.version}"
     sdist_tarball = destination / f"{dashed_pair}.tar.gz"
 
     # NOTE: Post Python 3.7 -- can drop the format kwarg, since it'll be the default.
@@ -84,9 +100,9 @@ def generate_source_distribution(
         # Recursively add the files to this tarball, with an exclusion filter.
         tarball.add(
             project.location,
-            arcname="",
+            arcname=dashed_pair,
             recursive=True,
-            filter=_sdist_filter(project),
+            filter=_sdist_filter(project, dashed_pair),
         )
 
         # Write the metadata file.
@@ -107,7 +123,9 @@ def generate_metadata(
 
     :return: name of the dist-info directory generated.
     """
-    dist_info = destination / f"{project.snake_name}-{project.version}.dist-info"
+    dist_info = (
+        destination / f"{project.snake_name}-{project.metadata.version}.dist-info"
+    )
     try:
         os.makedirs(dist_info)
     except OSError as error:
@@ -148,12 +166,15 @@ def generate_wheel_distribution(
     generate_assets(project)
 
     wheel_path = (
-        destination / f"{project.snake_name}-{project.version}-py3-none-any.whl"
+        destination
+        / f"{project.snake_name}-{project.metadata.version}-py3-none-any.whl"
     )
+    tracked_names = _get_vcs_tracked_names(project.location)
+
     with WheelFile(
         path=wheel_path,
-        tracked_files=_get_vcs_tracked_files(project.location),
         compiled_assets=project.compiled_assets,
+        tracked_names=tracked_names,
     ) as wheel:
         if editable:
             # Generate a .pth file, for editable installs. There's an enforced src/
@@ -164,11 +185,11 @@ def generate_wheel_distribution(
             )
         else:
             # Add files from the project's src/ directory.
-            wheel.add_directory(project.source_path, dest="")
+            wheel.add_directory(project.source_path, dest="", base=project.location)
 
         # Put the metadata at the end.
         # https://www.python.org/dev/peps/pep-0427/#recommended-archiver-features
-        wheel.add_directory(metadata_directory, dest=metadata_directory.name)
+        wheel.add_directory(metadata_directory, dest=metadata_directory.name, base=None)
         wheel.write_record(dest=metadata_directory.name + "/RECORD")
 
     return wheel.name

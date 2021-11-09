@@ -66,12 +66,13 @@ class WheelFile:
 
     def __init__(
         self,
+        *,
         path: Path,
-        tracked_files: Optional[Tuple[str, ...]],
+        tracked_names: Optional[Tuple[str, ...]],
         compiled_assets: Tuple[str, ...],
     ) -> None:
         self._path = path
-        self._tracked_files = tracked_files
+        self._tracked_names = tracked_names
         self._compiled_assets = compiled_assets
         self._zipfile = zipfile.ZipFile(path, mode="w")
         self._records: List[RecordEntry] = []
@@ -87,20 +88,27 @@ class WheelFile:
     ) -> None:
         self._zipfile.close()
 
-    def _exclude(self, path: Path) -> bool:
+    def _exclude(self, path: Path, *, base: Optional[Path]) -> bool:
         # Exclude compiled pyc files.
         if path.name == "__pycache__":
             return True
 
+        # Include all not-based-on-source-tree files.
+        if base is None:
+            return False
+
+        normalised_path = path.relative_to(base).as_posix()
+
         # Definitely include compiled assets.
-        if path.as_posix() in self._compiled_assets:
+        if normalised_path in self._compiled_assets:
             return False
 
         # Exclude things that are excluded from version control.
-        if self._tracked_files is not None:
-            if os.fsdecode(path) not in self._tracked_files:
+        if self._tracked_names is not None:
+            if normalised_path not in self._tracked_names:
                 return True
 
+        # If we're here, we've excluded all the files that needed to be excluded.
         return False
 
     @property
@@ -113,7 +121,6 @@ class WheelFile:
 
         :param dest: The exact ``{package}-{version}.dist-info/RECORD`` to write to.
         """
-        # DEBUG: write_record(dest={dest!r})
         assert self._zipfile.fp is not None
 
         self._records.append(RecordEntry(dest, "", ""))
@@ -122,7 +129,6 @@ class WheelFile:
 
     def add_string(self, content: str, *, dest: str) -> None:
         """Add a file at ``dest``, with the given ``content``."""
-        # DEBUG: add_string({content!r}, dest={dest!r})
         assert self._zipfile.fp is not None
 
         data = content.encode()
@@ -135,13 +141,11 @@ class WheelFile:
             )
         )
 
-    def add_file(self, file: Path, *, dest: str) -> None:
+    def add_file(self, file: Path, *, dest: str, base: Optional[Path]) -> None:
         """Add a file at ``dest``, with the contents of ``file``."""
-        # DEBUG: add_file({file!r}, dest={dest!r})
         assert self._zipfile.fp is not None
 
-        if self._exclude(file):
-            # DEBUG: excluded {file}
+        if self._exclude(file, base=base):
             return
 
         # Copy the file object.
@@ -159,18 +163,20 @@ class WheelFile:
             )
         )
 
-    def add_directory(self, directory: Path, *, dest: str) -> None:
+    def add_directory(
+        self, directory: Path, *, dest: str, base: Optional[Path]
+    ) -> None:
         """Add the directory to the archive, recursively."""
-        # DEBUG: add_directory({directory!r}, dest={dest!r})
         assert directory.is_dir()
         assert self._zipfile.fp is not None
 
-        if self._exclude(directory):
-            # DEBUG: excluded {directory}
+        if self._exclude(directory, base=base):
             return
 
         for item in sorted(directory.iterdir()):
             if item.is_dir():
-                self.add_directory(item, dest=posixpath.join(dest, item.name))
+                self.add_directory(
+                    item, dest=posixpath.join(dest, item.name), base=base
+                )
             else:
-                self.add_file(item, dest=posixpath.join(dest, item.name))
+                self.add_file(item, dest=posixpath.join(dest, item.name), base=base)

@@ -4,8 +4,9 @@ import ast
 import configparser
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Literal, Mapping, NewType, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
+import pep621
 import tomli
 from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
@@ -13,10 +14,8 @@ from rich.text import Text
 
 from .errors import DiagnosticError
 
-Metadata = NewType("Metadata", Mapping[str, Any])
 
-
-def read_toml_file(path: Path) -> "Mapping[str, Any]":
+def read_toml_file(path: Path) -> Dict[str, Any]:
     with path.open("rb") as stream:
         return tomli.load(stream)
 
@@ -50,7 +49,7 @@ class InvalidProjectStructure(DiagnosticError):
     """For issues with the project structure."""
 
 
-def _load_pyproject(pyproject: Path) -> Tuple[str, Metadata, Dict[str, Any]]:
+def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
     """Load from the pyproject.toml file, doing the minimal sanity checks."""
     try:
         pyproject_data = read_toml_file(pyproject)
@@ -96,20 +95,17 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Metadata, Dict[str, Any]]:
             reference="pyproject-non-canonical-name",
         )
 
-    configuration: Dict[str, Any] = pyproject_data.get("tool", {}).get(
-        "sphinx-theme-builder", {}
-    )
-    metadata: Metadata = pyproject_data.get("project", {})
-
-    return kebab_name, metadata, configuration
+    return kebab_name, pyproject_data
 
 
 def _determine_version(
-    package_path: Path, kebab_name: str, metadata: Metadata
+    package_path: Path, kebab_name: str, pyproject_data: Dict[str, Any]
 ) -> Tuple[str, Literal["pyproject.toml", "__init__.py"]]:
     # Let's look for the version now!
     declared_in_python = None  # type: Optional[str]
     declared_in_pyproject = None  # type: Optional[str]
+
+    metadata = pyproject_data["project"]
 
     # Load the version from pyproject.toml file, if provided.
     if "version" in metadata:
@@ -216,10 +212,8 @@ class Project:
 
     kebab_name: str
     # theme_name: str
-    version: Version
     location: Path
-    metadata: Metadata
-    configuration: Dict[str, Any]
+    metadata: pep621.StandardMetadata
 
     @classmethod
     def from_cwd(cls) -> "Project":
@@ -231,12 +225,14 @@ class Project:
     def from_path(cls, path: Path) -> "Project":
         """Load a project from given Path."""
         pyproject = path / "pyproject.toml"
-        kebab_name, metadata, configuration = _load_pyproject(pyproject)
+        kebab_name, pyproject_data = _load_pyproject(pyproject)
 
         # IMPORTANT: Keep in sync with `python_package_path` below.
         package_path = path / "src" / kebab_name.replace("-", "_")
+
+        # Get the version, and validate it.
         version_s, version_comes_from = _determine_version(
-            package_path, kebab_name, metadata
+            package_path, kebab_name, pyproject_data
         )
 
         try:
@@ -249,12 +245,46 @@ class Project:
                 reference="project-invalid-version",
             ) from error
 
+        # Get the metadata, and validate it.
+        try:
+            metadata = pep621.StandardMetadata.from_pyproject(pyproject_data, path)
+        except pep621.ConfigurationError as error:
+            raise InvalidProjectStructure(
+                message="Provided project metadata is not valid.",
+                context=str(error),
+                hint_stmt="This is related to the contents of the pyproject.toml file.",
+                reference="invalid-pyproject-toml",
+            )
+
+        if metadata.license is None:
+            raise ImproperProjectMetadata(
+                message="No license is declared in `pyproject.toml`.",
+                context=(
+                    "It is required for this to be packaged using sphinx-theme-builder."
+                ),
+                hint_stmt="This is related to the contents of the pyproject.toml file.",
+                reference="no-license-declared",
+            )
+
+        # Ensure that nothing other than the version is dynamic.
+        metadata.version = version
+        try:
+            metadata.dynamic.remove("version")
+        except ValueError:
+            pass  # it doesn't exist, that's fine.
+
+        if metadata.dynamic:
+            raise ImproperProjectMetadata(
+                message="Got unsupported keys for dynamic metadata.",
+                context=str(metadata.dynamic),
+                hint_stmt="This is related to the contents of the pyproject.toml file.",
+                reference="unsupported-dynamic-keys",
+            )
+
         return Project(
             kebab_name=kebab_name,
-            version=version,
-            location=path,
             metadata=metadata,
-            configuration=configuration,
+            location=path,
         )
 
     @property
@@ -388,21 +418,21 @@ class Project:
                 reference="theme-conf-incorrect-stylesheet",
             )
 
-        # TODO: Validate PEP 621 data.
-
     def get_metadata_file_contents(self) -> str:
-        lines = [
-            "Metadata-Version: 2.1",
-            f"Name: {self.kebab_name}",
-            f"Version: {self.version}",
-        ]
-        # TODO: Add metadata from PEP 621.
-        return "\n".join(lines)
+        """Get contents for the `METADATA` file in a wheel."""
+        return str(self.metadata.as_rfc822())
 
     def get_license_contents(self) -> str:
-        # TODO: Add metadata from PEP 621.
-        return ""
+        """Get contents for the `LICENSE` file in a wheel."""
+        return self.metadata.license.text
 
     def get_entry_points_contents(self) -> str:
-        # TODO: Add metadata from PEP 621.
-        return ""
+        """Get contents for the `entry_points.txt` file in a wheel."""
+        lines: List[str] = []
+        for group, mapping in self.metadata.entrypoints.items():
+            if lines:
+                lines.append("")  # blank line, for visual clarity
+            lines.append(f"[{group}]")
+            for name, entrypoint in mapping.items():
+                lines.append(f"{name} = {entrypoint}")
+        return "\n".join(lines)
