@@ -128,7 +128,7 @@ def _determine_version(
         raise InvalidProjectStructure(
             message=f"{package_init_file} is missing.",
             context=(
-                "It is required for this package to be a Sphinx theme.\n"
+                "It is required for using sphinx-theme-builder.\n"
                 f"The declared project name is {kebab_name}."
             ),
             hint_stmt=None,
@@ -369,7 +369,7 @@ class Project:
         if not self.theme_conf_path.exists():
             raise InvalidProjectStructure(
                 message=f"{self.theme_conf_path} does not exist.",
-                context="It is required for this package to be a Sphinx theme.",
+                context="It is required for using sphinx-theme-builder.",
                 hint_stmt=None,
                 reference="missing-theme-conf",
             )
@@ -377,7 +377,7 @@ class Project:
         if not self.input_scripts_path.exists():
             raise InvalidProjectStructure(
                 message=f"{self.input_scripts_path} does not exist.",
-                context="It is required for this package to be a Sphinx theme.",
+                context="It is required for using sphinx-theme-builder.",
                 hint_stmt=None,
                 reference="missing-javascript",
             )
@@ -385,7 +385,7 @@ class Project:
         if not self.input_stylesheets_path.exists():
             raise InvalidProjectStructure(
                 message=f"{self.input_stylesheets_path} does not exist.",
-                context="It is required for this package to be a Sphinx theme.",
+                context="It is required for using sphinx-theme-builder.",
                 hint_stmt=None,
                 reference="missing-stylesheet",
             )
