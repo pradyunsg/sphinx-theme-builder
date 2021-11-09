@@ -6,22 +6,13 @@ import posixpath
 import subprocess
 import tarfile
 import textwrap
-from pathlib import Path, PurePosixPath
-from typing import Callable, List, Optional, Set, Tuple
+from pathlib import Path
+from typing import Callable, Optional, Tuple
 
 from .errors import DiagnosticError
 from .nodejs import generate_assets
 from .project import Project
-from .wheelfile import WheelFile
-
-
-def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
-    names: Set[str] = set()
-    for path_str in posix_style_paths:
-        path = PurePosixPath(path_str)
-        names.update(parent.as_posix() for parent in path.parents)
-        names.add(path_str)
-    return tuple(names)
+from .wheelfile import WheelFile, include_parent_paths
 
 
 def _get_vcs_tracked_names(path: Path) -> Optional[Tuple[str, ...]]:

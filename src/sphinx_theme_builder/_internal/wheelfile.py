@@ -6,9 +6,9 @@ import os
 import posixpath
 import zipfile
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from types import TracebackType
-from typing import IO, List, Optional, Tuple, Type
+from typing import IO, List, Optional, Set, Tuple, Type
 
 _HASH_ALGORITHM = "sha256"
 
@@ -49,6 +49,15 @@ def copyfileobj_with_hashing(
     return hasher.hexdigest(), size
 
 
+def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
+    names: Set[str] = set()
+    for path_str in posix_style_paths:
+        path = PurePosixPath(path_str)
+        names.update(parent.as_posix() for parent in path.parents)
+        names.add(path_str)
+    return tuple(names)
+
+
 @dataclass
 class RecordEntry:
     """A single entry in a RECORD file."""
@@ -73,7 +82,7 @@ class WheelFile:
     ) -> None:
         self._path = path
         self._tracked_names = tracked_names
-        self._compiled_assets = compiled_assets
+        self._compiled_assets = include_parent_paths(list(compiled_assets))
         self._zipfile = zipfile.ZipFile(path, mode="w")
         self._records: List[RecordEntry] = []
 
