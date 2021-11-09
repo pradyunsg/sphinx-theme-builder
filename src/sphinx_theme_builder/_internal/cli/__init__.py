@@ -1,3 +1,4 @@
+import inspect
 import sys
 from typing import Any, Dict, List, Optional, Protocol, TextIO, Type
 
@@ -5,7 +6,6 @@ import rich
 from rich.text import Text
 
 from ..errors import DiagnosticError
-from ..ui import log
 
 try:
     import build  # noqa
@@ -33,6 +33,7 @@ except ImportError as import_error:
 
 
 class Command(Protocol):
+    context_settings: Dict[str, Any]
     interface: List[click.Parameter]
 
     def run(self, **kwargs: Dict[str, Any]) -> int:
@@ -41,7 +42,7 @@ class Command(Protocol):
 
 def create_click_command(cls: Type[Command]) -> click.Command:
     # Use the class docstring as the help string
-    help_string = cls.__doc__
+    help_string = inspect.cleandoc(cls.__doc__)
     # Infer the name, from the known context.
     name = cls.__name__[: -len("Command")].lower()
 
@@ -49,8 +50,13 @@ def create_click_command(cls: Type[Command]) -> click.Command:
     assert name.capitalize() + "Command" == cls.__name__
     assert name == cls.__module__.split(".")[-1]
 
+    context_settings: Optional[Dict[str, Any]] = None
+    if hasattr(cls, "context_settings"):
+        context_settings = cls.context_settings
+
     command = click.Command(
         name=name,
+        context_settings=context_settings,
         help=help_string,
         params=cls.interface,
         callback=lambda **kwargs: cls().run(**kwargs),
@@ -61,6 +67,7 @@ def create_click_command(cls: Type[Command]) -> click.Command:
 def compose_command_line() -> click.Group:
     from .compile import CompileCommand
     from .new import NewCommand
+    from .npm import NpmCommand
     from .package import PackageCommand
     from .serve import ServeCommand
 
@@ -69,6 +76,7 @@ def compose_command_line() -> click.Group:
         NewCommand,  # type: ignore
         PackageCommand,  # type: ignore
         ServeCommand,  # type: ignore
+        NpmCommand,  # type: ignore
     ]
 
     # Convert our commands into click objects.
