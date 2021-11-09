@@ -18,7 +18,6 @@ from .passthrough import passthrough_run
 from .project import Project
 from .ui import log
 
-NODE_VERSION = "16.13.0"
 _NODEENV_DIR = ".nodeenv"
 _BIN_DIR = "Scripts" if os.name == "nt" else "bin"
 
@@ -114,7 +113,7 @@ def generate_assets(project: Project) -> None:
     created_new_nodeenv = False
     if not nodeenv.exists():
         log("[yellow]#[/] [magenta]nodeenv[cyan] does not exist.[/]")
-        create_nodeenv(nodeenv, NODE_VERSION)
+        create_nodeenv(nodeenv, project.node_version)
         created_new_nodeenv = True
 
     # Checking the node version is a sanity check, and ensures that the environment is
@@ -146,7 +145,7 @@ def generate_assets(project: Project) -> None:
     print(got)
 
     # Sanity-check the node version.
-    expected = f"v{NODE_VERSION}"
+    expected = f"v{project.node_version}"
     if got != expected:
         raise DiagnosticError(
             reference="nodeenv-version-mismatch",

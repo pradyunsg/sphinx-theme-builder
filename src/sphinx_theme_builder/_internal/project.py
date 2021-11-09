@@ -214,6 +214,7 @@ class Project:
     # theme_name: str
     location: Path
     metadata: pep621.StandardMetadata
+    node_version: str
 
     @classmethod
     def from_cwd(cls) -> "Project":
@@ -281,10 +282,28 @@ class Project:
                 reference="unsupported-dynamic-keys",
             )
 
+        # Get the node-version. This gets validated when executing a compilation.
+        try:
+            node_version = pyproject_data["tool"]["sphinx-theme-builder"][
+                "node-version"
+            ]
+        except KeyError:
+            raise ImproperProjectMetadata(
+                message="Did not get any node-version, from pyproject.toml file.",
+                context=(
+                    "It is required for this to be packaged using sphinx-theme-builder."
+                ),
+                hint_stmt=Text(
+                    "Did you set node-version in [tool.sphinx-theme-builder]?"
+                ),
+                reference="no-node-version",
+            )
+
         return Project(
             kebab_name=kebab_name,
             metadata=metadata,
             location=path,
+            node_version=node_version,
         )
 
     @property
