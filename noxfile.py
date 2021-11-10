@@ -93,7 +93,7 @@ def get_release_versions(version_file):
         for line in f:
             if line.startswith(marker):
                 version = line[len(marker) + 1 : -2]
-                current_version, current_dev_number = version.split(".dev")
+                current_version, current_dev_number = version.split("dev")
                 break
         else:
             raise RuntimeError("Could not find current version.")
