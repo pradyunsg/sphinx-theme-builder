@@ -9,6 +9,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 from typing import Any, List, Optional
 from unittest.mock import patch
@@ -51,8 +52,30 @@ def run_in(
 
 
 def _run_python_nodeenv(*args: str) -> None:
-    command = [str(sys.executable), "-m", "nodeenv", *args]
-    log(f"[magenta]$[/] [blue]python {' '.join(command[1:])}[/]")
+    presentation = ["python", "-m", "nodeenv", *args]
+    log(f"[magenta]$[/] [blue]{' '.join(presentation)}[/]")
+
+    command = [
+        sys.executable,
+        "-c",
+        textwrap.dedent(
+            """
+            import runpy
+            import rich
+            import rich.traceback
+            import urllib.request
+
+            rich.traceback.install(
+                width=rich.get_console().width,
+                show_locals=True,
+                suppress=[runpy, urllib.request],
+            )
+            runpy.run_module("nodeenv", run_name="__main__", alter_sys=True)
+            """
+        ),
+        "-v",
+        *args,
+    ]
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as error:
