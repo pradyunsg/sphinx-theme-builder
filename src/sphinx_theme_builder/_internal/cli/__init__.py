@@ -135,7 +135,9 @@ def main(args: Optional[List[str]] = None) -> None:
         sys.exit(3)
     except Exception:
         console = rich.console.Console(stderr=True)
-        console.print_exception(width=console.width, show_locals=True, word_wrap=True)
+        console.print_exception(
+            width=console.width, show_locals=True, word_wrap=True, suppress=[click]
+        )
         console.print(
             DiagnosticError(
                 reference="crash",
