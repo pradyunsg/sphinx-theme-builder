@@ -97,8 +97,17 @@ def _run_python_nodeenv(*args: str) -> None:
 def _should_use_system_node(node_version: str) -> bool:
     process = subprocess.run(["node", "--version"], capture_output=True)
     if process.returncode:
+        log(
+            "[yellow]#[/] [cyan]Could not find a functional `node` executable.[/]\n"
+            f"{process.stderr.decode()}"
+        )
         return False
-    return process.stdout.decode().strip() == f"v{node_version}"
+
+    if process.stdout.decode().strip() != f"v{node_version}":
+        log("[yellow]#[/] [cyan]The system `node` has a different version:[/] {}")
+        return False
+
+    return True
 
 
 def create_nodeenv(nodeenv: Path, node_version: str) -> None:
