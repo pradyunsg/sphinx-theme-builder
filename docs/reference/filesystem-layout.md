@@ -29,6 +29,16 @@ all the nice quality-of-life things like `stb serve`.
                 - [other JS files]
 ```
 
+## Auto-generated folders
+
+The following folders will be auto-generated when you compile your theme.
+Consider adding them to your `.gitignore`:
+
+- `.nodeenv` - The `npm` installation that is used to compile your theme's assets.
+- `node_modules` - The `node` packages that were installed to compile your theme's assets.
+- `src/theme/static/styles` - The compiled CSS assets for your theme
+- `src/theme/static/scripts` - The compiled JS assets for your theme
+
 ## What is needed
 
 This section describes what needs to be done in the various files in the
