@@ -283,11 +283,12 @@ class Project:
                 reference="unsupported-dynamic-keys",
             )
 
+        # TODO: Factor this out, and add proper error messages.
+        tool_config = pyproject_data.get("tool", {}).get("sphinx-theme-builder", {})
+
         # Get the node-version. This gets validated when executing a compilation.
         try:
-            node_version = pyproject_data["tool"]["sphinx-theme-builder"][
-                "node-version"
-            ]
+            node_version = tool_config["node-version"]
         except KeyError:
             raise ImproperProjectMetadata(
                 message="Did not get any node-version, from pyproject.toml file.",
@@ -301,7 +302,7 @@ class Project:
             )
 
         try:
-            theme_name = pyproject_data["tool"]["sphinx-theme-builder"]["theme-name"]
+            theme_name = tool_config["theme-name"]
         except KeyError:
             theme_name = kebab_name
 
