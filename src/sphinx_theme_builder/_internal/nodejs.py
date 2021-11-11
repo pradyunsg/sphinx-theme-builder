@@ -24,7 +24,7 @@ _BIN_DIR = "Scripts" if os.name == "nt" else "bin"
 
 
 def run_in(
-    nodeenv: Path, args: List[str], **kwargs: Any
+    nodeenv: Path, args: List[str], *, production: bool = False, **kwargs: Any
 ) -> "Optional[subprocess.CompletedProcess[bytes]]":
     """Run a command, using a binary from `nodeenv`."""
     assert nodeenv.name == _NODEENV_DIR
@@ -35,6 +35,7 @@ def run_in(
         "npm_config_prefix": os.fsdecode(nodeenv),
         "NODE_PATH": os.fsdecode(nodeenv / "lib" / "node_modules"),
         "PATH": os.pathsep.join([os.fsdecode(nodeenv / "bin"), os.environ["PATH"]]),
+        "NODE_ENV": "production" if production else "development",
     }
 
     # Fully qualify the first argument.
@@ -126,9 +127,9 @@ def create_nodeenv(nodeenv: Path, node_version: str) -> None:
     )
 
 
-def run_npm_build(nodeenv: Path) -> None:
+def run_npm_build(nodeenv: Path, *, production: bool) -> None:
     try:
-        run_in(nodeenv, ["npm", "run-script", "build"])
+        run_in(nodeenv, ["npm", "run-script", "build"], production=production)
     except subprocess.CalledProcessError as error:
         raise DiagnosticError(
             reference="js-build-failed",
@@ -162,7 +163,7 @@ def populate_npm_packages(nodeenv: Path, node_modules: Path) -> None:
         node_modules.touch()
 
 
-def generate_assets(project: Project) -> None:
+def generate_assets(project: Project, *, production: bool) -> None:
     package_json = project.location / "package.json"
     nodeenv = project.location / _NODEENV_DIR
     node_modules = project.location / "node_modules"
@@ -243,6 +244,6 @@ def generate_assets(project: Project) -> None:
         log("[yellow]#[/] [cyan]Installing NodeJS packages.[/]")
         populate_npm_packages(nodeenv, node_modules)
 
-    run_npm_build(nodeenv=nodeenv)
+    run_npm_build(nodeenv=nodeenv, production=production)
 
     log("[green]Done![/]")

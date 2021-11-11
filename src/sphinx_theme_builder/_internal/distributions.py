@@ -154,7 +154,7 @@ def generate_wheel_distribution(
     editable: bool,
 ) -> str:
     # Generate the JS / CSS assets
-    generate_assets(project)
+    generate_assets(project, production=not editable)
 
     wheel_path = (
         destination
