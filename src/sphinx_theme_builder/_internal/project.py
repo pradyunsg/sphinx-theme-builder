@@ -211,7 +211,7 @@ class Project:
     """Represents a project to be built."""
 
     kebab_name: str
-    # theme_name: str
+    theme_name: str
     location: Path
     metadata: pep621.StandardMetadata
     node_version: str
@@ -299,8 +299,14 @@ class Project:
                 reference="no-node-version",
             )
 
+        try:
+            theme_name = pyproject_data["tool"]["sphinx-theme-builder"]["theme-name"]
+        except KeyError:
+            theme_name = kebab_name
+
         return Project(
             kebab_name=kebab_name,
+            theme_name=theme_name,
             metadata=metadata,
             location=path,
             node_version=node_version,
@@ -321,7 +327,7 @@ class Project:
     @property
     def theme_path(self) -> Path:
         # TODO: Allow mismatch between theme name and PyPI name.
-        return self.python_package_path / "theme" / self.kebab_name
+        return self.python_package_path / "theme" / self.theme_name
 
     @property
     def theme_static_path(self) -> Path:
@@ -389,7 +395,7 @@ class Project:
             raise InvalidProjectStructure(
                 message=f"{self.theme_conf_path} does not exist.",
                 context="It is required for using sphinx-theme-builder.",
-                hint_stmt=None,
+                hint_stmt="Did you set the correct theme-name in pyproject.toml?",
                 reference="missing-theme-conf",
             )
 
