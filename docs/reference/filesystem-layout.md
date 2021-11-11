@@ -19,8 +19,10 @@ all the nice quality-of-life things like `stb serve`.
         - theme: # HTML templates
             - my-amazing-theme:
                 - [various .html pages]
+                - static
+                  - [any static assets that don't need to be compiled, like images]
         - assets: # Static assets, SASS and JS.
-            - [static assets, possibly within folders]
+            - [static assets that need to be compiled, possibly within folders]
             - styles:
                 - index.sass # Compiled into the final CSS file.
                 - [other Sass / SCSS files]
