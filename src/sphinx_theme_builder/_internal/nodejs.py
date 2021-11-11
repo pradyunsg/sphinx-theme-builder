@@ -129,6 +129,15 @@ def run_npm_build(nodeenv: Path) -> None:
 def populate_npm_packages(nodeenv: Path, node_modules: Path) -> None:
     try:
         run_in(nodeenv, ["npm", "install", "--include=dev", "--no-save"])
+    except FileNotFoundError as error:
+        raise DiagnosticError(
+            reference="nodeenv-unhealthy-npm-not-found",
+            message="The `nodeenv` for this project is unhealthy.",
+            context=str(error),
+            hint_stmt=(
+                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
+            ),
+        ) from error
     except subprocess.CalledProcessError as error:
         raise DiagnosticError(
             reference="js-install-failed",
