@@ -36,8 +36,8 @@ Consider adding them to your `.gitignore`:
 
 - `.nodeenv` - The `npm` installation that is used to compile your theme's assets.
 - `node_modules` - The `node` packages that were installed to compile your theme's assets.
-- `src/theme/static/styles` - The compiled CSS assets for your theme
-- `src/theme/static/scripts` - The compiled JS assets for your theme
+- `src/theme/<my-awesome-theme>/static/styles` - The compiled CSS assets for your theme
+- `src/theme/<my-awesome-theme>/static/scripts` - The compiled JS assets for your theme
 
 ## What is needed
 
