@@ -29,7 +29,7 @@ def run_in(
     """Run a command, using a binary from `nodeenv`."""
     assert nodeenv.name == _NODEENV_DIR
 
-    log(f"[magenta](nodeenv) $[/] [blue]{_NODEENV_DIR}/{_BIN_DIR}/{' '.join(args)}[/]")
+    log(f"[magenta](nodeenv) $[/] [blue]{' '.join(args)}[/]")
     env = {
         "NPM_CONFIG_PREFIX": os.fsdecode(nodeenv),
         "npm_config_prefix": os.fsdecode(nodeenv),
@@ -38,7 +38,10 @@ def run_in(
     }
 
     # Fully qualify the first argument.
-    args[0] = os.fsdecode(nodeenv / "bin" / args[0])
+    resolved_name = shutil.which(args[0], path=env["PATH"])
+    if not resolved_name:
+        raise FileNotFoundError(resolved_name)
+    args[0] = resolved_name
 
     with patch.dict("os.environ", env):
         if not kwargs:
