@@ -216,6 +216,7 @@ class Project:
 
     theme_name: str
     node_version: str
+    additional_compiled_static_assets: List[str]
 
     @classmethod
     def from_cwd(cls) -> "Project":
@@ -306,12 +307,20 @@ class Project:
         except KeyError:
             theme_name = kebab_name
 
+        try:
+            additional_compiled_static_assets = tool_config[
+                "additional-compiled-static-assets"
+            ]
+        except KeyError:
+            additional_compiled_static_assets = []
+
         return Project(
             kebab_name=kebab_name,
             metadata=metadata,
             location=path,
             theme_name=theme_name,
             node_version=node_version,
+            additional_compiled_static_assets=additional_compiled_static_assets,
         )
 
     @property
@@ -360,21 +369,21 @@ class Project:
         return self.theme_static_path / "styles" / (self.kebab_name + ".css")
 
     @property
-    def output_extension_stylesheet_path(self) -> Path:
-        return self.theme_static_path / "styles" / (self.kebab_name + "-extensions.css")
-
-    @property
     def compiled_assets(self) -> Tuple[str, ...]:
         """A sequence of compiled assets, as relative POSIX paths (to project root)."""
+        compiled_assets = [
+            self.output_script_path,
+            self.output_stylesheet_path,
+        ]
+        compiled_assets.extend(
+            [
+                self.theme_static_path / asset_name
+                for asset_name in self.additional_compiled_static_assets
+            ]
+        )
+
         files = tuple(
-            map(
-                (lambda path: path.relative_to(self.location).as_posix()),
-                [
-                    self.output_script_path,
-                    self.output_stylesheet_path,
-                    self.output_extension_stylesheet_path,
-                ],
-            )
+            path.relative_to(self.location).as_posix() for path in compiled_assets
         )
         # Tack on the .map files
         return files + tuple(map((lambda x: x + ".map"), files))

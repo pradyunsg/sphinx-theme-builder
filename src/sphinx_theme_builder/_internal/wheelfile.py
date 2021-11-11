@@ -82,7 +82,8 @@ class WheelFile:
     ) -> None:
         self._path = path
         self._tracked_names = tracked_names
-        self._compiled_assets = include_parent_paths(list(compiled_assets))
+        self._compiled_assets = compiled_assets
+        self._compiled_assets_and_parents = include_parent_paths(list(compiled_assets))
         self._zipfile = zipfile.ZipFile(path, mode="w")
         self._records: List[RecordEntry] = []
 
@@ -109,8 +110,12 @@ class WheelFile:
         normalised_path = path.relative_to(base).as_posix()
 
         # Definitely include compiled assets.
-        if normalised_path in self._compiled_assets:
+        if normalised_path in self._compiled_assets_and_parents:
             return False
+
+        for asset_path in self._compiled_assets:
+            if normalised_path.startswith(asset_path + "/"):
+                return False
 
         # Exclude things that are excluded from version control.
         if self._tracked_names is not None:
