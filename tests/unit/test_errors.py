@@ -2,7 +2,7 @@
 
 import textwrap
 from io import StringIO
-from typing import Literal, Optional
+from typing import TYPE_CHECKING, Optional
 
 import pytest
 import rich
@@ -10,6 +10,9 @@ import rich.console
 import rich.text
 
 from sphinx_theme_builder._internal.errors import DiagnosticError
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 
 class TestDiagnosticErrorInitialisation:
@@ -66,7 +69,7 @@ def assert_presentation_matches(
     error: DiagnosticError,
     expected: str,
     *,
-    color_system: Optional[Literal["auto", "standard", "256", "truecolor", "windows"]]
+    color_system: 'Optional[Literal["auto", "standard", "256", "truecolor", "windows"]]'
 ) -> None:
     expected_output = textwrap.dedent(expected)
 

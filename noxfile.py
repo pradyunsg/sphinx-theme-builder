@@ -66,9 +66,9 @@ def mypy(session: nox.Session):
 @nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
 def test(session):
     if os.environ.get("CI"):
-        session.install(".")
+        session.install(".[cli]")
     else:
-        session.install("-e", ".")
+        session.install("-e", ".[cli]")
 
     session.install("-r", "tests/requirements.txt")
 

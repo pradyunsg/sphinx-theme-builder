@@ -1,10 +1,13 @@
 """Exceptions raised from within this package."""
 
 import re
-from typing import Literal, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from rich.console import Console, ConsoleOptions, RenderResult
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 _DOCS_URL = "https://sphinx-theme-builder.rtfd.io/errors/#{}"
 

@@ -38,6 +38,9 @@ class TestProjectFromPath:
                 name = 'magic-project'
                 version = '1.0'
                 license = { text = "MIT" }
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
                 """
             )
         )
@@ -57,18 +60,18 @@ class TestProjectFromPath:
 
         assert project.python_package_path == tmp_path / "src" / "magic_project"
         assert project.theme_path == (
-            tmp_path / "src" / "magic_project" / "theme" / "magic_project"
+            tmp_path / "src" / "magic_project" / "theme" / "magic-project"
         )
         assert project.theme_conf_path == (
             tmp_path
             / "src"
             / "magic_project"
             / "theme"
-            / "magic_project"
+            / "magic-project"
             / "theme.conf"
         )
         assert project.theme_static_path == (
-            tmp_path / "src" / "magic_project" / "theme" / "magic_project" / "static"
+            tmp_path / "src" / "magic_project" / "theme" / "magic-project" / "static"
         )
         assert project.output_script_path == (
             project.theme_static_path / "scripts" / "magic-project.js"
@@ -176,6 +179,9 @@ class TestProjectFromPath:
                 name = "magic"
                 version = "0.1.2"
                 license = { text = "MIT" }
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
                 """
             )
         )
@@ -197,6 +203,9 @@ class TestProjectFromPath:
                 name = "magic"
                 dynamic = ["version"]
                 license = { text = "MIT" }
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
                 """
             )
         )

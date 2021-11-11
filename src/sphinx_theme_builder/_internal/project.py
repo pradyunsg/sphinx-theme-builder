@@ -4,7 +4,7 @@ import ast
 import configparser
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import pep621
 import tomli
@@ -13,6 +13,9 @@ from packaging.version import InvalidVersion, Version
 from rich.text import Text
 
 from .errors import DiagnosticError
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 
 def read_toml_file(path: Path) -> Dict[str, Any]:
@@ -100,7 +103,7 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
 
 def _determine_version(
     package_path: Path, kebab_name: str, pyproject_data: Dict[str, Any]
-) -> Tuple[str, Literal["pyproject.toml", "__init__.py"]]:
+) -> 'Tuple[str, Literal["pyproject.toml", "__init__.py"]]':
     # Let's look for the version now!
     declared_in_python = None  # type: Optional[str]
     declared_in_pyproject = None  # type: Optional[str]
