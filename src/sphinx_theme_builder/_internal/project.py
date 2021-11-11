@@ -211,9 +211,10 @@ class Project:
     """Represents a project to be built."""
 
     kebab_name: str
-    theme_name: str
     location: Path
     metadata: pep621.StandardMetadata
+
+    theme_name: str
     node_version: str
 
     @classmethod
@@ -306,9 +307,9 @@ class Project:
 
         return Project(
             kebab_name=kebab_name,
-            theme_name=theme_name,
             metadata=metadata,
             location=path,
+            theme_name=theme_name,
             node_version=node_version,
         )
 
