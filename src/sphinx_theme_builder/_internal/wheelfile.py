@@ -63,11 +63,18 @@ class RecordEntry:
     """A single entry in a RECORD file."""
 
     path: str
-    hash_: str
+    hash_value: str
+    hash_algorithm: str
     size: str
 
     def to_line(self) -> str:
-        return ",".join((self.path, self.hash_, self.size))
+        if self.hash_value:
+            return ",".join(
+                (self.path, f"{self.hash_algorithm}={self.hash_value}", self.size)
+            )
+        else:
+            assert not self.hash_algorithm
+            return ",".join((self.path, "", self.size))
 
 
 class WheelFile:
@@ -137,7 +144,7 @@ class WheelFile:
         """
         assert self._zipfile.fp is not None
 
-        self._records.append(RecordEntry(dest, "", ""))
+        self._records.append(RecordEntry(dest, "", "", ""))
         lines = [record.to_line() for record in self._records]
         self._zipfile.writestr(dest, data="\n".join(lines))
 
@@ -150,7 +157,8 @@ class WheelFile:
         self._records.append(
             RecordEntry(
                 path=dest,
-                hash_=f"{_HASH_ALGORITHM}={hashlib.new(_HASH_ALGORITHM, data=data).hexdigest()}",
+                hash_algorithm=_HASH_ALGORITHM,
+                hash_value=hashlib.new(_HASH_ALGORITHM, data=data).hexdigest(),
                 size=str(len(data)),
             )
         )
@@ -166,13 +174,14 @@ class WheelFile:
         zipinfo = zipfile.ZipInfo.from_file(file, dest)
         with file.open("rb") as source_stream:
             with self._zipfile.open(zipinfo, "w") as dest_stream:
-                hash_, size = copyfileobj_with_hashing(
+                hash_value, size = copyfileobj_with_hashing(
                     source_stream, dest_stream, hash_algorithm=_HASH_ALGORITHM
                 )
         self._records.append(
             RecordEntry(
                 path=dest,
-                hash_=hash_,
+                hash_algorithm=_HASH_ALGORITHM,
+                hash_value=hash_value,
                 size=str(size),
             )
         )
