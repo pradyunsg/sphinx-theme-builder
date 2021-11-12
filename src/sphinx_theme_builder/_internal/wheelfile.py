@@ -66,7 +66,7 @@ class RecordEntry:
     hash_: str
     size: str
 
-    def to_line(self) -> str:
+    def to_line_parts(self) -> str:
         return ",".join((self.path, self.hash_, self.size))
 
 
@@ -150,7 +150,7 @@ class WheelFile:
         self._records.append(
             RecordEntry(
                 path=dest,
-                hash_=hashlib.new(_HASH_ALGORITHM, data=data).hexdigest(),
+                hash_=f"{_HASH_ALGORITHM}={hashlib.new(_HASH_ALGORITHM, data=data).hexdigest()}",
                 size=str(len(data)),
             )
         )
