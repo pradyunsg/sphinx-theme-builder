@@ -66,7 +66,7 @@ class RecordEntry:
     hash_: str
     size: str
 
-    def to_line_parts(self) -> str:
+    def to_line(self) -> str:
         return ",".join((self.path, self.hash_, self.size))
 
 
