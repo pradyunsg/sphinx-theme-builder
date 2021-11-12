@@ -3,7 +3,7 @@
 This module also serves as the public PEP 517 API for this project.
 """
 
-__version__ = "0.2.0dev7"
+__version__ = "0.2.0a8"
 
 import contextlib
 import sys
