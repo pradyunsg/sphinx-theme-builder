@@ -1,9 +1,63 @@
 # Changelog
 
+## 0.2.0a11
+
+- Fix handling of missing `node` executable on system.
+- Explicitly declare the LICENSE.
+
+## 0.2.0a10
+
+- Fix improper RECORD file generation.
+
+## 0.2.0a9
+
+- Try to fix improper RECORD file generation.
+
+## 0.2.0a8
+
+- Add `stb compile --production`
+- Improve documentation on what the project layout is.
+
+## 0.2.0a7
+
+- Allow setting alternative theme name.
+- Enable users to specify custom "additional compiled static assets".
+- Present error when npm is not found.
+- Present more context when deciding on using `system` nodeenv.
+- Run `nodeenv` with rich traceback installed.
+- Search `PATH` for executables to run in nodenv.
+- Suppress exception stack from click.
+
+## 0.2.0a6
+
+- Include parent paths of compiled files, when computing files for the wheel archive.
+- Fix release version management.
+
+## 0.2.0a5
+
+- Include setuptools as a dependency.
+
+## 0.2.0a4
+
+- Add `stb npm` command, to make it easier to run npm within the nodeenv.
+- Properly handle `nodeenv` and CLI colours.
+- Get `node-version` from project configuration.
+- Use the `node` from PATH, if it matches the required version
+- Handle aborts coming out of click.
+- Handle unclean exits in `build`.
+
+## 0.2.0a3
+
+- Improve `stb serve`.
+- Improve handling and presentation of errors from `main`.
+- Run project structure validation in more situations.
+- Consolidate compiled asset calculation.
+- Add a direct dependency on `nodeenv`.
+
 ## 0.2.0a2
 
-- Update the paths that source assets are stored in
-- Correctly handle `[project]` in the error output
+- Update the paths that source assets are stored in.
+- Correctly handle `[project]` in the error output.
 
 ## 0.2.0a1
 
