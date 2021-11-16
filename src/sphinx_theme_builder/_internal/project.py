@@ -71,7 +71,8 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
             reference="pyproject-could-not-parse",
         ) from error
 
-    if (project := pyproject_data.get("project", None)) is None:
+    project = pyproject_data.get("project", None)
+    if project is None:
         raise ImproperProjectMetadata(
             message=Text("Could not find [project] table."),
             context=f"in file {pyproject}",
@@ -79,7 +80,8 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
             reference="pyproject-no-project-table",
         )
 
-    if (kebab_name := project.get("name", None)) is None:
+    kebab_name = project.get("name", None)
+    if kebab_name is None:
         raise ImproperProjectMetadata(
             message=Text("Could not find `name` in [project] table."),
             context=f"in file {pyproject}",
@@ -87,7 +89,8 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
             reference="pyproject-no-name-in-project-table",
         )
 
-    if kebab_name != (canonical_name := canonicalize_name(kebab_name)):
+    canonical_name = canonicalize_name(kebab_name)
+    if kebab_name != canonical_name:
         raise ImproperProjectMetadata(
             message=Text("Found non-canonical `name` declared in the [project] table."),
             context=(
