@@ -2,6 +2,7 @@
 
 ## 0.2.0a11
 
+- Fix Python 3.7 compatibility.
 - Fix handling of missing `node` executable on system.
 - Explicitly declare the LICENSE.
 
