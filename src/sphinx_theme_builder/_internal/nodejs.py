@@ -96,11 +96,15 @@ def _run_python_nodeenv(*args: str) -> None:
 
 
 def _should_use_system_node(node_version: str) -> bool:
-    process = subprocess.run(["node", "--version"], capture_output=True)
-    if process.returncode:
+    try:
+        process = subprocess.run(["node", "--version"], capture_output=True, check=True)
+    except FileNotFoundError:
+        log("[yellow]#[/] [cyan]Could not find a `node` executable.[/]")
+        return False
+    except subprocess.CalledProcessError as error:
         log(
-            "[yellow]#[/] [cyan]Could not find a functional `node` executable.[/]\n"
-            f"{process.stderr.decode()}"
+            "[yellow]#[/] [cyan]`node` executable did not exit cleanly.[/]\n"
+            f"{error.stderr.decode()}"
         )
         return False
 
