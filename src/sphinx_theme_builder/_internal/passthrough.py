@@ -33,6 +33,7 @@ which in turn was adapted from StackOverflow.
 """
 
 import sys
+from typing import List
 
 if sys.platform != "win32":
     import errno
@@ -45,7 +46,6 @@ if sys.platform != "win32":
     from itertools import chain
     from select import select
     from subprocess import Popen
-    from typing import List
 
     (_COLUMNS, _ROWS) = shutil.get_terminal_size(fallback=(80, 20))
 
