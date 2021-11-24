@@ -40,7 +40,7 @@ $ cd my-awesome-sphinx-theme
 
 ## Install the theme
 
-To work with your theme, it is necessary to install it in the virtual environment. Let's do an editable install, since that's usually what would want to do for development.
+To work with your theme, it is necessary to install it in the virtual environment. Let's do an editable install, since that's usually what you would want to do for development.
 
 ```shell
 $ pip install -e .
