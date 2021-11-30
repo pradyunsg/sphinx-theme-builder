@@ -46,6 +46,8 @@ To work with your theme, it is necessary to install it in the virtual environmen
 $ pip install -e .
 ```
 
+Note: an editable install with sphinx-theme-builder as backend requires a modern version of pip (>= 21.3)
+
 ## Start the development server
 
 To start a development server, you use the `stb serve` command. It needs a path to a directory containing Sphinx documentation, so we'll use the demo documentation that comes as part of the default scaffold:

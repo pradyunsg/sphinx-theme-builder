@@ -21,7 +21,7 @@ This project is available on [PyPI](https://pypi.org/project/sphinx-theme-builde
 pip install "sphinx-theme-builder[cli]"
 ```
 
-This project requires modern versions of CPython (>= 3.7) and pip (>= 21.3).
+This project requires modern versions of CPython (>= 3.7).
 
 <!-- end-installation -->
 

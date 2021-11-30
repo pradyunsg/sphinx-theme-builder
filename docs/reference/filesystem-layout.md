@@ -17,7 +17,7 @@ all the nice quality-of-life things like `stb serve`.
         - __init__.py
         - [other Python files]
         - theme: # HTML templates
-            - my_amazing_theme:
+            - my-amazing-theme:
                 - [various .html pages]
                 - static
                   - [any static assets that don't need to be compiled, like images]
