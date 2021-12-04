@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0a12
+
+- Fix Windows compatibility.
+
 ## 0.2.0a11
 
 - Fix Python 3.7 compatibility.
