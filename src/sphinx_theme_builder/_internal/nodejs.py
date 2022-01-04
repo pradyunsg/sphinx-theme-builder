@@ -34,7 +34,7 @@ def run_in(
         "NPM_CONFIG_PREFIX": os.fsdecode(nodeenv),
         "npm_config_prefix": os.fsdecode(nodeenv),
         "NODE_PATH": os.fsdecode(nodeenv / "lib" / "node_modules"),
-        "PATH": os.pathsep.join([os.fsdecode(nodeenv / "bin"), os.environ["PATH"]]),
+        "PATH": os.pathsep.join([os.fsdecode(nodeenv / _BIN_DIR), os.environ["PATH"]]),
         "NODE_ENV": "production" if production else "development",
     }
 
