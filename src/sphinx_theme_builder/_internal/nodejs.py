@@ -96,7 +96,16 @@ def _run_python_nodeenv(*args: str) -> None:
 
 
 def _should_use_system_node(node_version: str) -> bool:
-    return os.environ.get("STB_USE_SYSTEM_NODE", "false") == "true"
+    if os.environ.get("STB_USE_SYSTEM_NODE", "false") != "true":
+        return False
+    if sys.platform == "win32":
+        raise DiagnosticError(
+            reference="can-not-use-system-node-on-windows",
+            message="sphinx-theme-builder can not use the system node on Windows.",
+            context="The underlying tooling (nodeenv) does not yet support this.",
+            hint_stmt="Unset `STB_USE_SYSTEM_NODE`, which is currently set to 'true'",
+        )
+    return True
 
 
 def create_nodeenv(nodeenv: Path, node_version: str) -> None:
@@ -109,9 +118,17 @@ def create_nodeenv(nodeenv: Path, node_version: str) -> None:
         log("[yellow]#[/] Will use system nodeJS, since version matches.")
         node_version = "system"
 
+    envdir = os.fsdecode(nodeenv)
+    # This next bit is borrowed from
+    # https://github.com/pre-commit/pre-commit/blob/v2.16.0/pre_commit/languages/node.py
+    if sys.platform == "win32":  # pragma: no cover
+        envdir = "\\\\?\\" + os.path.normpath(envdir)
+
     _run_python_nodeenv(
         f"--node={node_version}",
-        os.fsdecode(nodeenv),
+        "--prebuilt",
+        "--clean-src",
+        envdir,
     )
 
 
