@@ -27,6 +27,10 @@ To create a new theme, you can use the `stb new` command.
 $ stb new my-awesome-sphinx-theme
 ```
 
+```{todo}
+Actually write the template that this uses.
+```
+
 You will be prompted to answer a few questions. Once they've been answered, this command will generate a scaffold for your theme in a folder named `my-awesome-sphinx-theme`.
 
 For the rest of this tutorial, we're going to exclusively work in this directory, so it's sensible to `cd` into it.
@@ -61,6 +65,10 @@ This command will do a few things (we'll get to details of this later) and, afte
 The development server simplifies the workflow for seeing how a change affects the generated documentation fairly straightforward -- save changes to a file, switch to the browser and the browser will update to reflect those changes.
 
 ## Making changes
+
+```{todo}
+This requires that the template in `stb new` works, and uses `sphinx-basic-ng`.
+```
 
 To try out how the development server handles changes, create a new `sections/article.html` file in the `src/{your_package_name}/theme/{your_theme_name}` with the following content:
 
