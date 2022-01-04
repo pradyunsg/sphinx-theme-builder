@@ -5,6 +5,8 @@ from click.testing import CliRunner
 
 
 class TestCompileCommand:
+    """`stb compile`"""
+
     def test_calls_generate_assets(self, runner: CliRunner, cli: Group) -> None:
         with mock.patch(
             "sphinx_theme_builder._internal.cli.compile.generate_assets"

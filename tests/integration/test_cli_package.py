@@ -6,6 +6,8 @@ from click.testing import CliRunner
 
 
 class TestPackageCommand:
+    """`stb package`"""
+
     def test_calls_build(self, runner: CliRunner, cli: Group) -> None:
         with mock.patch("subprocess.run") as mocked_run:
             runner.invoke(cli, ["package"])
