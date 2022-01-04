@@ -2,10 +2,10 @@
 
 <!-- start-elevator-pitch -->
 
-Streamline the Sphinx theme development workflow, by building upon existing standardised tools. and provide a:
+Streamline the Sphinx theme development workflow, by building upon existing standardised tools.
 
 - simplified packaging experience
-- simplified JavaScript tooling setup experience
+- simplified JavaScript tooling setup
 - development server, with rebuild-on-save and automagical browser reloading
 - consistent repository structure across themes
 
