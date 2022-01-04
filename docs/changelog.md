@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0a13
+
+- Simplify system node usage logic.
+- Use the correct binary directory on Windows.
+- Reducing the size of the generated nodeenv.
+- Add TODOs to the tutorial, to reflect it is incomplete.
+
 ## 0.2.0a12
 
 - Fix Windows compatibility.
