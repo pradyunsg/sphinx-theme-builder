@@ -21,7 +21,7 @@ dependencies = [
   "setuptools",  # for nodeenv
   "pep621",      # for pyproject.toml-based metadata
 ]
-requires-python = "~=3.7"
+requires-python = ">=3.7"
 
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
