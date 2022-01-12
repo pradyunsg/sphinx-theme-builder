@@ -91,7 +91,7 @@ def _run_python_nodeenv(*args: str) -> None:
                 "A `urllib.error.HTTPError` indicates that the issue is "
                 "related to the network or the NodeJS servers. It may mean the node version "
                 "that this tool is trying to fetch is no longer available, for example "
-                "if there is no compatible nodejs binary for your operating system."
+                "if there is no compatible NodeJS binary for your operating system."
             ),
         ) from error
 
