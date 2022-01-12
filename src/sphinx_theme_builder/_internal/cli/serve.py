@@ -81,6 +81,7 @@ class ServeCommand:
                 f"--port={port}",  # use a random free port
                 f"--pre-build='{sys.executable}' -m sphinx_theme_builder compile",
                 # Sphinx flags
+                "-T",
                 "-a",  # full rebuild to ensure static assets are copied on each change
                 f"-b={builder}",
                 os.fsdecode(source_directory),
