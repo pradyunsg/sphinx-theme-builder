@@ -15,6 +15,7 @@ hide-toc: true
 :hidden:
 
 tutorial
+topic/index
 reference/index
 cli/index
 ```
