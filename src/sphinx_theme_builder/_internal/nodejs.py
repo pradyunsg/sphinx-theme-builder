@@ -135,6 +135,11 @@ def create_nodeenv(nodeenv: Path, node_version: str) -> None:
 
 def run_npm_build(nodeenv: Path, *, production: bool) -> None:
     try:
+        if not Path(".package-json.lock").exists():
+            log(
+                "[yellow]#[/] Did not find [magenta]package-lock.json[/]. To add "
+                "one, run [cyan]stb npm install --include=dev[/]."
+            )
         run_in(nodeenv, ["npm", "run-script", "build"], production=production)
     except subprocess.CalledProcessError as error:
         raise DiagnosticError(
