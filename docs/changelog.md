@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0a14
+
+- Don't pin the upper Python version.
+- Present the traceback on Sphinx failures.
+- Update error message for `nodeenv-creation-failed`
+- Quote the `sys.executable`.
+- Fix mis-formatted README opening.
+- Back to development.
+
 ## 0.2.0a13
 
 - Simplify system node usage logic.
