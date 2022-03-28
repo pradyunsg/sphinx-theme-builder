@@ -47,7 +47,7 @@ cli = [
 
 [project.urls]
 Documentation = "https://sphinx-theme-builder.readthedocs.io/en/latest/"
-Source = "https://github.com/pradyunsg/sphinx_theme_builder"
+Source = "https://github.com/pradyunsg/sphinx-theme-builder"
 
 [project.scripts]
 stb = "sphinx_theme_builder._internal.cli:main"
