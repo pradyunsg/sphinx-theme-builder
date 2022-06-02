@@ -26,9 +26,9 @@ output above the error.
 A `urllib.error.HTTPError` indicates that the issue is related to the network or
 the availability of NodeJS release files. It may mean the node version that this
 tool is trying to fetch is no longer available, for example if there is no
-compatible NodeJS binary for your operating system.
+compatible NodeJS binary for the operating system.
 
-In case you get this error, a good place to look at is the {pypi}`nodeenv`
+When this error is encountered, a good place to look at is the {pypi}`nodeenv`
 project's documentation and issue tracker.
 
 ## can-not-use-system-node-on-windows
@@ -40,7 +40,8 @@ The underlying tooling that Sphinx Theme Builder uses ({pypi}`nodeenv`) does not
 support using an existing system NodeJS installation for creating the nodeenv,
 so this is not permitted.
 
-You should unset the `STB_USE_SYSTEM_NODE` environment variable in such cases.
+Windows users should unset the `STB_USE_SYSTEM_NODE` environment variable in
+such cases.
 
 ## js-build-failed
 
@@ -53,8 +54,8 @@ wrong in the Javascript build pipeline of the theme that is being
 built/packaged.
 
 Typically, there is a JS error reported immediately above this error coming from
-the theme-specific tooling. If you're looking for more details on the failure,
-that's what you need to look at (and possibly, copy into a search engine).
+the theme-specific tooling. For more details on the failure, that error is what
+needs to be looked at (and possibly, put into a search engine).
 
 ## js-install-failed
 
@@ -67,8 +68,8 @@ raised which means that something went wrong in the installation of the JS
 dependencies of the theme that is being built/packaged.
 
 Typically, there is a JS error reported immediately above this error coming from
-npm. If you're looking for more details on the failure, that's what you need to
-look at (and possibly, copy into a search engine).
+the theme-specific tooling. For more details on the failure, that error is what
+needs to be looked at (and possibly, put into a search engine).
 
 ## nodeenv-unhealthy-npm-not-found
 
@@ -76,8 +77,9 @@ This error indicates that the nodeenv created for building this theme is broken,
 and does not have an `npm` executable. Typically, this is a symptom of an
 incomplete cleanup and the resolution is to delete the `.nodeenv` directory.
 
-If you are performing parallel builds (which is not supported at this time),
-this can be caused by a race condition in such situations.
+If this happens while performing parallel builds (which is not supported at this
+time), this can be caused by a race condition due to the lack of support for
+this mode of usage.
 
 ## nodeenv-unhealthy-file-not-found
 
@@ -86,8 +88,9 @@ and does not contain a file that should have been there (the `node` executable).
 Typically, this is a symptom of an incomplete cleanup and the resolution is to
 delete the `.nodeenv` directory.
 
-If you are performing parallel builds (which is not supported at this time),
-this can be caused by a race condition in such situations.
+If this happens while performing parallel builds (which is not supported at this
+time), this can be caused by a race condition due to the lack of support for
+this mode of usage.
 
 ## nodeenv-unhealthy-subprocess-failure
 
@@ -100,8 +103,8 @@ indicates that this subprocess failed, which should never happen for a valid and
 functional nodeenv.
 
 This is not a typical failure and may be a symptom of a different underlying
-issue (incompatible architecture, broken OS libraries etc). You may be able to
-work around this by deleting the `.nodeenv` directory and trying again.
+issue (incompatible architecture, broken OS libraries etc). It may be possible
+to work around this by deleting the `.nodeenv` directory and trying again.
 
 ## nodeenv-version-mismatch
 
@@ -119,19 +122,20 @@ requirements.
 ## unable-to-cleanup-node-modules
 
 This error indicates that the `node_modules` folder could not be deleted. It is
-not a typical error and you should likely diagnose why the deletion might have
-failed.
+not a typical error and will need diagnosis of why the deletion might have
+failed (eg: permission issues, filesystem issues).
 
 ## invalid-pyproject-toml
 
-This error indicates that you do not have a valid `pyproject.toml` file in the
-repository root, due to the contents of the file. Typically, this is related to
-the `build-system` table or the `project` table.
+This error indicates that the theme does not have a valid `pyproject.toml` file
+in the root, due to the contents of the file. Typically, this is related to the
+`build-system` table or the `project` table and mentions the problematic key.
 
 ## pyproject-missing
 
 This error indicates that theme does not have a `pyproject.toml` file in the
-root directory of the theme's package (typically, the repository root).
+root directory of the theme's package (typically, the repository root). It is
+required for using Sphinx Theme Builder.
 
 ## pyproject-could-not-parse
 
@@ -249,11 +253,11 @@ This error indicates that `theme.conf` could not be read.
 
 Sphinx Theme Builder tries to read the `theme.conf` file of the theme being
 built, parse it and read certain configuration variables declared in it. This
-error is presented when that operation fails. You can typically find more
-details from the context provided in the error message (after the line of "Could
-not open/parse).
+error is presented when that operation fails. More details are typically
+available from the "context" information provided in the error message (the line
+after "Could not open/parse).
 
-If the file is missing, you should create one -- as described in
+If the file is missing, it should be created, as described in
 [Sphinx's theme creation documentation](https://www.sphinx-doc.org/en/master/development/theming.html#creating-themes).
 
 ## theme-conf-incorrect-stylesheet
@@ -287,8 +291,8 @@ currently expected as the repository that `stb new` tries to use is not set up.
 ## no-nodeenv
 
 This error is raised by `stb npm` when the user tries to use it without creating
-the nodeenv for the project. Typically, you should run `stb compile` once before
-trying to use `stb npm`.
+the nodeenv for the project. Typically, it is expected that users will run
+`stb compile` once before trying to run `stb npm`.
 
 ## autobuild-failed
 

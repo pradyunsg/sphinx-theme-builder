@@ -206,7 +206,7 @@ def _determine_version(
         hint_stmt=(
             "Did you forget to declare the version? "
             "It's the 'project.version' key in `pyproject.toml` "
-            "and the `__version__` attribute in `__init__.py`."
+            "or the `__version__` attribute in `__init__.py`."
         ),
         reference="project-no-version-declaration",
     )

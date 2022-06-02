@@ -15,7 +15,8 @@ hide-toc: true
 :hidden:
 
 tutorial
-reference/index
+build-process
+filesystem-layout
 cli/index
 errors
 ```

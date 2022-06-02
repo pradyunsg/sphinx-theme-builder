@@ -1,7 +1,9 @@
 # `stb package`
 
-Generate PyPI distributions.
+Generate Python distribution files. (sdist and wheel)
 
-```{TODO}
-Flesh this out.
-```
+This is done by running {pypi}`build` in a subprocess.
+
+## Options
+
+None.

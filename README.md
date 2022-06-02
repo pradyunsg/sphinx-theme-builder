@@ -2,7 +2,8 @@
 
 <!-- start-elevator-pitch -->
 
-Streamline the Sphinx theme development workflow, by building upon existing standardised tools.
+Streamline the Sphinx theme development workflow, by building upon existing
+standardised tools.
 
 - simplified packaging experience
 - simplified JavaScript tooling setup
@@ -15,7 +16,9 @@ Streamline the Sphinx theme development workflow, by building upon existing stan
 
 <!-- start-installation -->
 
-This project is available on [PyPI](https://pypi.org/project/sphinx-theme-builder/), and can be installed using `pip`:
+This project is available on
+[PyPI](https://pypi.org/project/sphinx-theme-builder/), and can be installed
+using `pip`:
 
 ```
 pip install "sphinx-theme-builder[cli]"
@@ -27,11 +30,14 @@ This project requires modern versions of CPython (>= 3.7).
 
 ## Usage
 
-You can find more details on how to use this project in the [documentation].
+Find more details on how to use this project in the [documentation].
 
 ## Contributing
 
-`stb` is a volunteer maintained open source project, and we welcome contributions of all forms. Please take a look at the [Contributing Guide] for more information.
+`stb` is a volunteer maintained open source project, and we welcome
+contributions of all forms. Please take a look at the [Development
+Documentation] for more information.
 
 [documentation]: https://sphinx-theme-builder.rtfd.io/
-[contributing guide]: https://sphinx-theme-builder.rtfd.io/en/latest/contributing/
+[development documentation]:
+  https://sphinx-theme-builder.rtfd.io/en/latest/development/

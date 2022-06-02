@@ -1,6 +1,6 @@
 """A tool for authoring Sphinx themes with a simple (opinionated) workflow.
 
-This module also serves as the public PEP 517 API for this project.
+This module also serves as the build-backend API for this project.
 """
 
 __version__ = "0.2.0dev14"
