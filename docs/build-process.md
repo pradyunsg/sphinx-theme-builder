@@ -4,7 +4,7 @@ This document describes the build process of a theme, built using Sphinx Theme
 Builder (`stb`). In other words, this document serves as an elaborate answer to
 the question: "What happens when I run `stb compile` or `stb package`?"
 
-(asset-generation=)
+(asset-generation)=
 
 ## Asset Generation
 
