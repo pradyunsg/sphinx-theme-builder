@@ -343,7 +343,6 @@ class Project:
 
     @property
     def theme_path(self) -> Path:
-        # TODO: Allow mismatch between theme name and PyPI name.
         return self.python_package_path / "theme" / self.theme_name
 
     @property
