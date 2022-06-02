@@ -17,6 +17,7 @@ hide-toc: true
 tutorial
 reference/index
 cli/index
+errors
 ```
 
 ```{toctree}
