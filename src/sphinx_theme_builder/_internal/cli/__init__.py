@@ -2,6 +2,11 @@ import inspect
 import sys
 from typing import Any, Dict, List, Optional, Protocol, TextIO, Type
 
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
 import rich
 from rich.text import Text
 
