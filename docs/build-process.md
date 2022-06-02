@@ -13,11 +13,14 @@ This is all that `stb compile` does.
 ### nodeenv creation
 
 `stb` invokes {pypi}`nodeenv`, in a subprocess and creates an isolated
-installation of NodeJS in a `.nodeenv` directory.
+installation of NodeJS in a `.nodeenv` directory. By default, nodeenv will
+prefer to use pre-built binaries, if they're available for the platform that the
+build is taking place on. If a pre-built binary is not available, it tries to
+build NodeJS from source on the machine.
 
 If a `.nodeenv` directory already exists, this step is skipped.
 
-#### Getting the NodeJS binaries to use
+#### Where the pre-built NodeJS binaries come from
 
 nodeenv uses the NodeJS release files available at
 <https://nodejs.org/download/release/>
@@ -26,13 +29,9 @@ creating the isolated installation. It is possible to configure it using [a
 `~/.nodeenvrc` file][nodeenv-configuration] to change its behaviours, such as
 whether it uses a pre-built binary or what mirror it downloads from.
 
-By default, nodeenv will try to prefer to use pre-built binaries, if they're
-available for the platform that the build is taking place on. If a pre-built
-binary is not available, it tries to build NodeJS from source on the machine.
-
 [nodeenv-configuration]: https://github.com/ekalinin/nodeenv#configuration
 
-##### `STB_USE_SYSTEM_NODE`
+#### `STB_USE_SYSTEM_NODE`
 
 `stb` looks at a `STB_USE_SYSTEM_NODE` environment variable when deciding how to
 invoke `nodeenv`. If it is equal to `true`, `stb` will use ask nodeenv to use
