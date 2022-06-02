@@ -1,6 +1,8 @@
 # Getting Started
 
-Follow this tutorial, to get a basic understanding of the workflow of developing a Sphinx theme with this tool.
+Sphinx Theme Builder provides a streamlined workflow for developing Sphinx
+themes. This tutorial walks through the process of setting up a new Sphinx
+theme, making changes to it and generating PyPI distribution files for it.
 
 This tutorial expects that the reader has working knowledge of:
 
