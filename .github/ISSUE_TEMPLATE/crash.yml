@@ -1,0 +1,45 @@
+name: Crash Report
+description: >-
+  If you've gotten a `error: crash` when running Sphinx Theme Builder, use this
+  template to report the issue.
+body:
+  - type: input
+    attributes:
+      label: Link to source code that is involved in this issue
+      description: >-
+        Please provide a reference to the relevant git commit/tag/branch, or a
+        source tarball that can be used to reproduce the crash.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Reproducer
+      description: >-
+        Steps to reproduce the issue. Please provide any relevant additional
+        context here.
+      value: |
+        1. Clone the repository at ...
+        2. Run `stb package` in the repository root.
+        3. See crash.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Output containing crash traceback
+      description: >-
+        Please paste the complete output of the stb command that resulted in a
+        crash here. Note that you do NOT need to add backticks.
+      render: console
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: >-
+            I agree to follow the [Code of
+            Conduct](https://github.com/pradyunsg/sphinx-theme-builder/blob/main/CODE_OF_CONDUCT.md).
+          required: true
