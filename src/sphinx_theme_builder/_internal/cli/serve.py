@@ -40,6 +40,11 @@ class ServeCommand:
             help="Open the browser after starting live-reload server.",
         ),
         click.Option(
+            ["--pdb"],
+            is_flag=True,
+            help="Run pdb if the Sphinx build fails with an exception.",
+        ),
+        click.Option(
             ["--override-theme / --no-override-theme"],
             is_flag=True,
             default=False,
@@ -66,6 +71,7 @@ class ServeCommand:
         source_directory: Path,
         builder: str,
         open_browser: bool,
+        pdb: bool,
         override_theme: bool,
     ) -> int:
         project = Project.from_cwd()
@@ -87,6 +93,8 @@ class ServeCommand:
                 os.fsdecode(source_directory),
                 os.fsdecode(build_directory),
             ]
+            if pdb:
+                command.append("-P")
             if open_browser:
                 # open the browser for the user
                 command.append("--open-browser")
