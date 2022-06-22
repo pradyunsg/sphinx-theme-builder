@@ -19,6 +19,10 @@ The Sphinx builder to build the documentation with.
 
 Allowed values: `html` (default), `dirhtml`
 
+### `--host`
+
+hostname to serve documentation on (default: 127.0.0.1)
+
 ### `--port`
 
 The port to start the server on. Uses a random free port by default.

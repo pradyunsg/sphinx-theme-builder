@@ -25,6 +25,13 @@ class ServeCommand:
             help="The Sphinx builder to build the documentation with",
         ),
         click.Option(
+            ["--host"],
+            default=None,
+            show_default=True,
+            show_choices=True,
+            help="hostname to serve documentation on (default: 127.0.0.1)",
+        ),
+        click.Option(
             ["--port"],
             type=click.INT,
             default=0,
@@ -67,6 +74,7 @@ class ServeCommand:
     def run(
         self,
         *,
+        host: str,
         port: int,
         source_directory: Path,
         builder: str,
@@ -84,6 +92,7 @@ class ServeCommand:
                 # sphinx-autobuild flags
                 f"--watch={os.fsdecode(project.source_path)}",
                 f"--re-ignore=({'|'.join(map(re.escape, project.compiled_assets))})",
+                f"{f'--host={host}' if host else ''}",
                 f"--port={port}",  # use a random free port
                 f"--pre-build='{sys.executable}' -m sphinx_theme_builder compile",
                 # Sphinx flags
