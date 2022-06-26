@@ -31,13 +31,14 @@ compatible NodeJS binary for the operating system.
 When this error is encountered, a good place to look at is the {pypi}`nodeenv`
 project's documentation and issue tracker.
 
-## unknown-value-for-STB_USE_SYSTEM_NODE
+## non-boolean-env-variable-value
 
-This error is raised when the user sets the `STB_USE_SYSTEM_NODE` environment
-variable to an unsupported value.
+This error is raised when the user sets the a boolean environment variable to an
+unsupported value.
 
-The environment variable only supports truthy-values (`true` and `1`,
-case-insensitive) and any other value will cause this error to be raised.
+The valid values for boolean environment variables are `true`, `false`, `1` and
+`0`. They are case-insensitive. Providing any other value will cause this error
+to be raised.
 
 ## can-not-use-system-node-on-windows
 

@@ -25,6 +25,22 @@ _NODEENV_DIR = ".nodeenv"
 _BIN_DIR = "Scripts" if os.name == "nt" else "bin"
 
 
+def _get_bool_env_var(name: str, *, default: bool) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    if value.lower() in {"false", "0"}:
+        return False
+    if value.lower() in {"true", "1"}:
+        return True
+    raise DiagnosticError(
+        reference=f"non-boolean-env-variable-value",
+        message=f"The provided value for `{name}` is invalid.",
+        context=f"{name}={escape(value)}",
+        hint_stmt=f"Provide a boolean value for `{name}` (true, false, 1, 0).",
+    )
+
+
 def run_in(
     nodeenv: Path, args: List[str], *, production: bool = False, **kwargs: Any
 ) -> "Optional[subprocess.CompletedProcess[bytes]]":
@@ -100,17 +116,8 @@ def _run_python_nodeenv(*args: str) -> None:
 
 
 def _should_use_system_node(node_version: str) -> bool:
-    env_var = os.environ.get("STB_USE_SYSTEM_NODE")
-    if env_var is None:
+    if not _get_bool_env_var("STB_USE_SYSTEM_NODE", default=False):
         return False
-
-    if env_var.lower() not in {"true", "1"}:
-        raise DiagnosticError(
-            reference="unknown-value-for-STB_USE_SYSTEM_NODE",
-            message="The provided value for `STB_USE_SYSTEM_NODE` is invalid.",
-            context=f"STB_USE_SYSTEM_NODE={escape(env_var)}",
-            hint_stmt="Provide a truthy value for `STB_USE_SYSTEM_NODE` (true, 1).",
-        )
 
     if sys.platform == "win32":
         raise DiagnosticError(
