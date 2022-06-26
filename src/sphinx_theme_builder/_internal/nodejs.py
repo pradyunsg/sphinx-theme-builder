@@ -129,7 +129,69 @@ def _should_use_system_node(node_version: str) -> bool:
     return True
 
 
+def _relaxed_version_check(expected: str, got: str) -> Optional[str]:
+    """Perform a relaxed check of the failure mode.
+
+    Returns None, if the versions match the relaxed check criterion.
+    Returns a string, with the reason for the the version check failure.
+    """
+    assert expected.startswith("v"), expected
+    assert got.startswith("v"), got
+
+    expected_parts = expected[1:].split(".")[:2]
+    got_parts = got[1:].split(".")[:2]
+
+    assert len(expected_parts) == len(got_parts) == 2, f"{expected};{got}"
+
+    if expected_parts[0] != got_parts[0]:
+        return "Minor version does not match the value declared in the theme."
+    if int(expected_parts[1]) < int(got_parts[1]):
+        return "Minor version is lower than the value declared in the theme."
+    return None
+
+
+def ensure_version_matches(expected: str, got: str) -> None:
+    """Ensure that the version of NodeJS matches the expected value.
+
+    STB_RELAX_NODE_VERSION_CHECK can be used to relax the check, to only check the major
+    and minor version.
+    """
+    if got == expected:
+        return
+
+    if not _get_bool_env_var("STB_RELAX_NODE_VERSION_CHECK", default=False):
+        raise DiagnosticError(
+            reference="nodeenv-version-mismatch",
+            message="The `nodeenv` for this project is unhealthy.",
+            context=(
+                "There is a mismatch between what is present in the environment "
+                f"({got}) and the expected version of NodeJS ({expected})."
+            ),
+            hint_stmt=(
+                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
+            ),
+        )
+
+    log("[yellow]#[/] The node version is not the expected one.")
+    log("[yellow]#[/] The generated assets may be broken even if the build succeeds.")
+    log("[yellow]#[/] Continuing anyway - `STB_RELAX_NODE_VERSION_CHECK` is truthy.")
+
+    rejection_reason = _relaxed_version_check(expected, got)
+    if rejection_reason is None:
+        return
+
+    raise DiagnosticError(
+        reference="node-version-mismatch",
+        message="The node version is not compatible with the expected version.",
+        context=f"{rejection_reason}\nSee above for the expected and actual version.",
+        hint_stmt=(
+            "You need to use a compatible version of NodeJS to build the theme. "
+        ),
+    )
+
+
 def create_nodeenv(nodeenv: Path, node_version: str) -> None:
+    """Create a `nodeenv` for the theme."""
     log(
         "[yellow]#[/] [cyan]Generating new [magenta]nodeenv[/] with "
         f"NodeJS [green]{node_version}[/]!"
@@ -232,18 +294,7 @@ def generate_assets(project: Project, *, production: bool) -> None:
 
     # Sanity-check the node version.
     expected = f"v{project.node_version}"
-    if got != expected:
-        raise DiagnosticError(
-            reference="nodeenv-version-mismatch",
-            message="The `nodeenv` for this project is unhealthy.",
-            context=(
-                "There is a mismatch between what is present in the environment "
-                f"({got}) and the expected version of NodeJS ({expected})."
-            ),
-            hint_stmt=(
-                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
-            ),
-        )
+    ensure_version_matches(expected, got)
 
     need_to_populate = False
     if created_new_nodeenv:
