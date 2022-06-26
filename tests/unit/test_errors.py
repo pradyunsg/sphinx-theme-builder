@@ -156,8 +156,7 @@ class TestDiagnosticPipErrorPresentation:
                       And this can also have multiple lines.
                 hint: This is a hint, that will help you figure this out.
                       And the hint can have multiple lines.
-
-                Link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
+                link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
             """,
             color_system=None,
         )
@@ -196,8 +195,7 @@ class TestDiagnosticPipErrorPresentation:
                       And this can also have multiple lines.
                 \x1b[1;36mhint\x1b[0m: This is a hint, that will help you figure this out.
                       And the [b]hint[/] can have multiple lines.
-
-                Link: \x1b[4;94mhttps://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured\x1b[0m
+                \x1b[1mlink\x1b[0m: \x1b[4;94mhttps://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured\x1b[0m
             """,
             color_system="256",
         )
@@ -220,7 +218,7 @@ class TestDiagnosticPipErrorPresentation:
                 × This is an error message describing the issues.
                   It can have multiple lines.
 
-                Link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
+                link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
             """,
             color_system=None,
         )
@@ -248,7 +246,7 @@ class TestDiagnosticPipErrorPresentation:
                 ╰─> This is some context associated with that error.
                     Any relevant additional details are mentioned here.
 
-                Link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
+                link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
             """,
             color_system=None,
         )
@@ -281,8 +279,7 @@ class TestDiagnosticPipErrorPresentation:
 
                 hint: This is a hint, that will help you figure this out.
                       And the hint can have multiple lines.
-
-                Link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
+                link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
             """,
             color_system=None,
         )
@@ -316,8 +313,7 @@ class TestDiagnosticPipErrorPresentation:
 
                 note: This is to draw your attention toward about something important.
                       And this can also have multiple lines.
-
-                Link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
+                link: https://sphinx-theme-builder.rtfd.io/errors/#ooops-an-error-occured
             """,
             color_system=None,
         )

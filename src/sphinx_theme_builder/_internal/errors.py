@@ -118,8 +118,7 @@ class DiagnosticError(Exception):
                 yield ""
                 yield self.context
 
-        if self.note_stmt is not None or self.hint_stmt is not None:
-            yield ""
+        yield ""
 
         if self.note_stmt is not None:
             yield _prefix_with_indent(
@@ -138,8 +137,7 @@ class DiagnosticError(Exception):
                 indent="      ",
             )
 
-        yield ""
-        yield f"Link: {_DOCS_URL.format(self.reference)}"
+        yield f"[bold]link[/]: {_DOCS_URL.format(self.reference)}"
 
 
 if __name__ == "__main__":
