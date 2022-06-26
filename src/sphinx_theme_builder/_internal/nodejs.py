@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, List, Optional
 from unittest.mock import patch
 
-from rich import escape
+from rich.markup import escape
 
 from .errors import DiagnosticError
 from .passthrough import passthrough_run
