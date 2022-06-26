@@ -164,8 +164,8 @@ This error indicates that theme does not have a `pyproject.toml` file in the
 root directory of the theme's package (typically, the repository root). It is
 required for using Sphinx Theme Builder.
 
-**What you can do:** Create a `pyproject.toml` file and re-run `stb`. You'll get
-a new error, which will help guide you forward.
+**What you can do:** Create a `pyproject.toml` file and try again. You'll get a
+new error, which will help guide you forward.
 
 ## pyproject-could-not-parse
 
