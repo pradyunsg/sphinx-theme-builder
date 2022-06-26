@@ -1,6 +1,6 @@
 import inspect
 import sys
-from typing import Any, Dict, List, Optional, Protocol, TextIO, Type
+from typing import Any, Dict, List, Optional, TextIO, Type
 
 if sys.version_info >= (3, 8):
     from typing import Protocol
