@@ -8,48 +8,16 @@ the question: "What happens when I run `stb compile` or `stb package`?"
 
 ## Asset Generation
 
-This is all that `stb compile` does.
-
 ### nodeenv creation
 
 `stb` invokes {pypi}`nodeenv`, in a subprocess and creates an isolated
-installation of NodeJS in a `.nodeenv` directory. By default, nodeenv will
-prefer to use pre-built binaries, if they're available for the platform that the
-build is taking place on. If a pre-built binary is not available, it tries to
-build NodeJS from source on the machine.
-
-If a `.nodeenv` directory already exists, this step is skipped.
-
-#### Where the pre-built NodeJS binaries come from
-
-nodeenv uses the NodeJS release files available at
-<https://nodejs.org/download/release/>
-(<https://unofficial-builds.nodejs.org/download/release/> for musl), for
-creating the isolated installation. It is possible to configure it using [a
-`~/.nodeenvrc` file][nodeenv-configuration] to change its behaviours, such as
-whether it uses a pre-built binary or what mirror it downloads from.
-
-[nodeenv-configuration]: https://github.com/ekalinin/nodeenv#configuration
-
-#### `STB_USE_SYSTEM_NODE`
-
-`stb` looks at a `STB_USE_SYSTEM_NODE` environment variable when deciding how to
-invoke `nodeenv`. If it is equal to `true`, `stb` will use ask nodeenv to use
-the `node` executable available on `PATH`.
-
-This functionality is primarily for software redistributors who have policies
-against using prebuilt binaries from the NodeJS team, such as the ones that
-`nodeenv` tries to use by default.
-
-```{note}
-The version of NodeJS provided by this mechanism _must_ match the version of
-NodeJS in the theme's `pyproject.toml`.
-```
+installation of NodeJS in a `.nodeenv` directory. If a `.nodeenv` directory
+already exists, this step is skipped.
 
 ### nodeenv validation
 
 Once `stb` has a nodeenv available, it will run `node --version` using the
-nodeenv's `node` and validate that it matches the requirements of the theme,
+nodeenv's `node` and validate that it matches the requirements of the theme.
 
 This serves as a validation check to ensure that the user does not incorrectly
 use a broken nodeenv (in which case, `node` will fail to run) or a NodeJS
@@ -126,3 +94,42 @@ It is expected that wheels would only be generated from unpacked source
 distributions. Attempting to generate a wheel from the source tree directly
 may result in incorrect contents in the wheel.
 ```
+
+(controlling-nodejs)=
+
+## Appendix: Controlling NodeJS installation
+
+{pypi}`nodeenv` will prefer to use pre-built binaries, if they're available for
+the platform that the build is taking place on. If a pre-built binary is not
+available, it tries to build NodeJS from source on the machine.
+
+By default, the pre-built binaries are fetched from:
+
+- <https://nodejs.org/download/release/> for supported platforms
+- <https://unofficial-builds.nodejs.org/download/release/> for musl-based
+  platforms
+
+It is possible to configure the behaviour of `nodeenv` using [a `~/.nodeenvrc`
+file][nodeenv-configuration] to change its behaviour, such as whether it uses a
+pre-built binary or what mirror it downloads from.
+
+[nodeenv-configuration]: https://github.com/ekalinin/nodeenv#configuration
+
+### `STB_USE_SYSTEM_NODE`
+
+When set to `true` or `1`, `stb` will ask {pypi}`nodeenv` to use the `node`
+executable available on `PATH`, for creating the nodeenv.
+
+This functionality is primarily for software redistributors who have policies
+against using prebuilt binaries from the NodeJS team, such as the ones that
+`nodeenv` tries to use by default.
+
+### `STB_RELAX_NODE_VERSION_CHECK`
+
+When set to `true` or `1`, `stb` will _not_ enforce that the NodeJS version in
+the `.nodeenv` directory exactly match the declared version in the theme.
+Instead, the check changes to ensuring that it has the same major version and an
+equal-or-higher minor version. The patch version is ignored.
+
+This functionality is primarily for software redistributors who wish to use
+newer-but-still-compatible versions of the NodeJS.
