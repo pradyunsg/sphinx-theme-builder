@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any, List, Optional
 from unittest.mock import patch
 
+from rich import escape
+
 from .errors import DiagnosticError
 from .passthrough import passthrough_run
 from .project import Project
@@ -98,8 +100,18 @@ def _run_python_nodeenv(*args: str) -> None:
 
 
 def _should_use_system_node(node_version: str) -> bool:
-    if os.environ.get("STB_USE_SYSTEM_NODE", "false") != "true":
+    env_var = os.environ.get("STB_USE_SYSTEM_NODE")
+    if env_var is None:
         return False
+
+    if env_var.lower() not in {"true", "1"}:
+        raise DiagnosticError(
+            reference="unknown-value-for-STB_USE_SYSTEM_NODE",
+            message="The provided value for `STB_USE_SYSTEM_NODE` is invalid.",
+            context=f"STB_USE_SYSTEM_NODE={escape(env_var)}",
+            hint_stmt="Provide a truthy value for `STB_USE_SYSTEM_NODE` (true, 1).",
+        )
+
     if sys.platform == "win32":
         raise DiagnosticError(
             reference="can-not-use-system-node-on-windows",
