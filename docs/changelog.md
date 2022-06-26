@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0a15
+
+- Add `--pdb` flag to `stb serve`.
+- Accept more values for `STB_USE_SYSTEM_NODE`, error out on invalid ones.
+- Add `STB_RELAX_NODE_VERSION_CHECK`.
+- Fix typing-related import for Python 3.7 compatibility.
+- Document all errors in the error index, describing what the user can do.
+- Fix project source URL in metadata.
+- Improve the getting started tutorial.
+- Tweak how links are presented in errors.
+
 ## 0.2.0a14
 
 - Don't pin the upper Python version.
@@ -51,7 +62,8 @@
 
 ## 0.2.0a6
 
-- Include parent paths of compiled files, when computing files for the wheel archive.
+- Include parent paths of compiled files, when computing files for the wheel
+  archive.
 - Fix release version management.
 
 ## 0.2.0a5
