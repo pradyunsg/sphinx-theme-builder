@@ -117,7 +117,7 @@ def create_nodeenv(nodeenv: Path, node_version: str) -> None:
     )
 
     if _should_use_system_node(node_version=node_version):
-        log("[yellow]#[/] Will use system nodeJS, since version matches.")
+        log("[yellow]#[/] Will use system nodeJS.")
         node_version = "system"
 
     envdir = os.fsdecode(nodeenv)
