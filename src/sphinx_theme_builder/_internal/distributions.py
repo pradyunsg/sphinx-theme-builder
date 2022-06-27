@@ -136,7 +136,7 @@ def generate_metadata(
         textwrap.dedent(
             """\
             Wheel-Version: 1.0
-            Generator: flit {version}
+            Generator: sphinx-theme-builder {version}
             Root-Is-Purelib: true
             Tag: py3-none-any
             """
