@@ -229,7 +229,7 @@ def run_npm_build(nodeenv: Path, *, production: bool) -> None:
 
 def populate_npm_packages(nodeenv: Path, node_modules: Path) -> None:
     try:
-        run_in(nodeenv, ["npm", "install", "--include=dev", "--no-save"])
+        run_in(nodeenv, ["npm", "install", "--include=dev"])
     except FileNotFoundError as error:
         raise DiagnosticError(
             reference="nodeenv-unhealthy-npm-not-found",
