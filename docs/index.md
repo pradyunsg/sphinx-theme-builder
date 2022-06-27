@@ -17,6 +17,7 @@ hide-toc: true
 tutorial
 build-process
 filesystem-layout
+theme-assets
 cli/index
 errors
 ```
