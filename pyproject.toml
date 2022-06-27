@@ -14,12 +14,12 @@ readme = "README.md"
 license = { file = "LICENSE" }
 
 dependencies = [
-  "packaging",   # for Python packaging parsers
+  "pyproject-metadata",
+  "packaging",
   "rich",        # for output styling
   "tomli",       # for pyproject.toml parsing
   "nodeenv",     # for NodeJS isolation
   "setuptools",  # for nodeenv
-  "pep621",      # for pyproject.toml-based metadata
   "typing_extensions ; python_version <= '3.7'", # for Protocol
 ]
 requires-python = ">=3.7"

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
-import pep621
+import pyproject_metadata
 import tomli
 from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
@@ -218,7 +218,7 @@ class Project:
 
     kebab_name: str
     location: Path
-    metadata: pep621.StandardMetadata
+    metadata: pyproject_metadata.StandardMetadata
 
     theme_name: str
     node_version: str
@@ -256,8 +256,10 @@ class Project:
 
         # Get the metadata, and validate it.
         try:
-            metadata = pep621.StandardMetadata.from_pyproject(pyproject_data, path)
-        except pep621.ConfigurationError as error:
+            metadata = pyproject_metadata.StandardMetadata.from_pyproject(
+                pyproject_data, path
+            )
+        except pyproject_metadata.ConfigurationError as error:
             raise InvalidProjectStructure(
                 message="Provided project metadata is not valid.",
                 context=str(error),
