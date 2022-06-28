@@ -25,6 +25,13 @@ class ServeCommand:
             help="The Sphinx builder to build the documentation with",
         ),
         click.Option(
+            ["--host"],
+            default=None,
+            show_default=True,
+            show_choices=True,
+            help="hostname to serve documentation on (default: 127.0.0.1)",
+        ),
+        click.Option(
             ["--port"],
             type=click.INT,
             default=0,
@@ -67,6 +74,7 @@ class ServeCommand:
     def run(
         self,
         *,
+        host: str,
         port: int,
         source_directory: Path,
         builder: str,
@@ -93,6 +101,8 @@ class ServeCommand:
                 os.fsdecode(source_directory),
                 os.fsdecode(build_directory),
             ]
+            if host:
+                command.append(f"--host={host}")
             if pdb:
                 command.append("-P")
             if open_browser:
