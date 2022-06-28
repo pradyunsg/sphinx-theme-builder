@@ -92,7 +92,6 @@ class ServeCommand:
                 # sphinx-autobuild flags
                 f"--watch={os.fsdecode(project.source_path)}",
                 f"--re-ignore=({'|'.join(map(re.escape, project.compiled_assets))})",
-                f"{f'--host={host}' if host else ''}",
                 f"--port={port}",  # use a random free port
                 f"--pre-build='{sys.executable}' -m sphinx_theme_builder compile",
                 # Sphinx flags
@@ -102,6 +101,8 @@ class ServeCommand:
                 os.fsdecode(source_directory),
                 os.fsdecode(build_directory),
             ]
+            if host:
+                command.append(f"--host={host}")
             if pdb:
                 command.append("-P")
             if open_browser:
