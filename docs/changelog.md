@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0b1
+
+- Add `--host` to `stb serve`.
+- Document a theme asset management approach.
+- Fix the generator value.
+- Generate a `package-lock.json` file, if it does not exist.
+- Switch to `pyproject-metadata` (from `pep621`).
+
 ## 0.2.0a15
 
 - Add `--pdb` flag to `stb serve`.
