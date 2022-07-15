@@ -3,7 +3,7 @@
 This module also serves as the build-backend API for this project.
 """
 
-__version__ = "0.2.0dev15"
+__version__ = "0.2.0dev1"
 
 import contextlib
 import sys

@@ -99,7 +99,7 @@ def get_release_versions(version_file):
             raise RuntimeError("Could not find current version.")
 
     next_dev_number = int(current_dev_number) + 1
-    release_version = f"{current_version}a{next_dev_number}"
+    release_version = f"{current_version}b{next_dev_number}"
     next_version = f"{current_version}dev{next_dev_number}"
 
     return release_version, next_version
