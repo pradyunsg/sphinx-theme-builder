@@ -29,6 +29,10 @@ The port to start the server on. Uses a random free port by default.
 
 Allowed values: INTEGER
 
+### `--pdb`
+
+Run pdb if the Sphinx build fails with an exception.
+
 ### `--open-browser / --no-open-browser`
 
 Open the browser after starting live-reload server. This is done by default.
