@@ -1,3 +1,4 @@
+import sys
 import textwrap
 from pathlib import Path
 from typing import Any
@@ -14,7 +15,7 @@ from sphinx_theme_builder._internal.project import (
 )
 
 
-@mock.patch("tomli.load")
+@mock.patch(f"{'tomllib' if sys.version_info > (3, 11) else 'tomli'}.load")
 def test_read_toml_file(patched_load: mock.Mock, tmp_path: Path) -> None:
     # GIVEN
     file = tmp_path / "foo.toml"
