@@ -7,10 +7,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import pyproject_metadata
-import tomli
 from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
 from rich.text import Text
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 from .errors import DiagnosticError
 
@@ -20,7 +24,7 @@ if TYPE_CHECKING:
 
 def read_toml_file(path: Path) -> Dict[str, Any]:
     with path.open("rb") as stream:
-        return tomli.load(stream)
+        return tomllib.load(stream)
 
 
 def get_version_using_ast(contents: bytes) -> Optional[str]:
@@ -63,7 +67,7 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
             hint_stmt="Is this a valid Python package?",
             reference="pyproject-missing",
         ) from error
-    except tomli.TOMLDecodeError as error:
+    except tomllib.TOMLDecodeError as error:
         raise ImproperProjectMetadata(
             message="Could not parse `pyproject.toml`.",
             context=f"{error}\npath: {pyproject}",
