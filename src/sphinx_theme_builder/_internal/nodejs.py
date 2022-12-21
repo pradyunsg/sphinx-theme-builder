@@ -34,7 +34,7 @@ def _get_bool_env_var(name: str, *, default: bool) -> bool:
     if value.lower() in {"true", "1"}:
         return True
     raise DiagnosticError(
-        reference=f"non-boolean-env-variable-value",
+        reference="non-boolean-env-variable-value",
         message=f"The provided value for `{name}` is invalid.",
         context=f"{name}={escape(value)}",
         hint_stmt=f"Provide a boolean value for `{name}` (true, false, 1, 0).",
