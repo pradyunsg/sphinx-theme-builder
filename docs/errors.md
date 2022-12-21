@@ -285,6 +285,22 @@ This error indicates that no NodeJS version was configured in the
 **What you can do:** Configure the NodeJS version in the theme's
 `pyproject.toml` file.
 
+## node-version-mismatch
+
+This error indicates that the NodeJS version in the nodeenv does not match what
+was configured in the `pyproject.toml` file.
+
+**What you can do:** Typically, this is only seen when
+{ref}`the default NodeJS handling is overridden<controlling-nodejs>` and is a
+symptom of misconfiguration (either of sphinx-theme-builder or within the
+environment). Ensure that a matching NodeJS version for the project being build
+is available and, if so, delete the `.nodeenv` directory and try again.
+
+If this happens while performing multiple builds of the same theme in parallel
+(which is not supported at this time), this is likely caused by a race condition
+due to the lack of support for this mode of usage. You'll need to ensure that no
+parallel builds are occurring in the same directory.
+
 ## missing-theme-conf
 
 This error indicates that the `theme.conf` file for the theme could not be
