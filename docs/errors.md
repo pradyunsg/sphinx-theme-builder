@@ -406,9 +406,7 @@ the nodeenv for the project.
 ## autobuild-failed
 
 This error is raised when `sphinx-autobuild` exits with an error, which is
-typically caused by interrupting a fatal error (or interrupt). The information
-about the underlying issue is typically available in the output of
-`sphinx-autobuild` and is available above this error.
+typically caused by a fatal error or interrupt.
 
 **What you can do:** Investigate why the Sphinx build failed. Typically, the
-output for failure will be available above this error.
+output for failure above this error will provide relevant information.
