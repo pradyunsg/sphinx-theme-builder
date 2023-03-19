@@ -61,7 +61,7 @@ This command is expected to generate the compiled assets for the theme. If the
 theme's `build` command is being executed, everything that `stb` does is working
 correctly.
 
-[webpack]: webpack.js.org/
+[webpack]: https://webpack.js.org/
 
 ## Python Packaging stuff
 

@@ -34,7 +34,7 @@ templates_path = ["_templates"]
 # -- Options for extlinks ----------------------------------------------------
 #
 extlinks = {
-    "pypi": ("https://pypi.org/project/%s/", ""),
+    "pypi": ("https://pypi.org/project/%s/", "%s"),
 }
 
 #

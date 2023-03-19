@@ -25,7 +25,7 @@ During theme development, it is expected that theme authors will not need to
 invoke npm manually. Instead, when you want to compile the theme's assets,
 you'll run:
 
-```sh-session
+```sh
 $ stb compile
 ```
 
