@@ -9,7 +9,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from types import TracebackType
-from typing import IO, List, Optional, Set, Tuple, Type
+from typing import BinaryIO, List, Optional, Set, Tuple, Type
 
 _HASH_ALGORITHM = "sha256"
 
@@ -20,10 +20,10 @@ _COPY_BUFSIZE = 1024 * 1024 if _WINDOWS else 64 * 1024
 
 
 # Borrowed from pradyunsg/installer
-# https://github.com/pradyunsg/installer/blob/0.4.0/src/installer/utils.py#L95
+# https://github.com/pradyunsg/installer/blob/0.7.0/src/installer/utils.py#L95
 def copyfileobj_with_hashing(
-    source: IO[bytes],
-    dest: IO[bytes],
+    source: BinaryIO,
+    dest: BinaryIO,
     hash_algorithm: str,
 ) -> Tuple[str, int]:
     """Copy a buffer while computing the content's hash and size.
@@ -34,9 +34,9 @@ def copyfileobj_with_hashing(
     :param source: buffer holding the source data
     :param dest: destination buffer
     :param hash_algorithm: hashing algorithm
+
     :return: size, hash digest of the contents
     """
-
     hasher = hashlib.new(hash_algorithm)
     size = 0
     while True:
@@ -47,11 +47,7 @@ def copyfileobj_with_hashing(
         dest.write(buf)
         size += len(buf)
 
-    # correctly compute hash per PEP 376:
-    # https://peps.python.org/pep-0376/#record
-    hash = base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
-
-    return hash, size
+    return base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("="), size
 
 
 def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
