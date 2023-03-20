@@ -19,7 +19,12 @@ _WINDOWS = os.name == "nt"
 _COPY_BUFSIZE = 1024 * 1024 if _WINDOWS else 64 * 1024
 
 
-# Borrowed from pradyunsg/installer
+def encode_for_record(hasher: hashlib._Hash) -> str:
+    """Takes a hasher and returns the encoded hash value for the RECORD."""
+    return base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
+
+
+# Adapted from pradyunsg/installer
 # https://github.com/pradyunsg/installer/blob/0.7.0/src/installer/utils.py#L95
 def copyfileobj_with_hashing(
     source: BinaryIO,
@@ -47,7 +52,7 @@ def copyfileobj_with_hashing(
         dest.write(buf)
         size += len(buf)
 
-    return base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("="), size
+    return encode_for_record(hasher), size
 
 
 def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
@@ -155,16 +160,13 @@ class WheelFile:
 
         data = content.encode()
         hasher = hashlib.new(_HASH_ALGORITHM, data=data)
-        hash_value = (
-            base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
-        )
 
         self._zipfile.writestr(dest, data=data)
         self._records.append(
             RecordEntry(
                 path=dest,
                 hash_algorithm=_HASH_ALGORITHM,
-                hash_value=hash_value,
+                hash_value=encode_for_record(hasher),
                 size=str(len(data)),
             )
         )
