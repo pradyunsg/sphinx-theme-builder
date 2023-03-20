@@ -1,6 +1,7 @@
 """A helper class to make it easier to generate a wheel.
 """
 
+import base64
 import hashlib
 import os
 import posixpath
@@ -46,7 +47,11 @@ def copyfileobj_with_hashing(
         dest.write(buf)
         size += len(buf)
 
-    return hasher.hexdigest(), size
+    # correctly compute hash per PEP 376:
+    # https://peps.python.org/pep-0376/#record
+    hash = base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
+
+    return hash, size
 
 
 def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
@@ -153,12 +158,15 @@ class WheelFile:
         assert self._zipfile.fp is not None
 
         data = content.encode()
+        hasher = hashlib.new(_HASH_ALGORITHM, data=data)
+        hash = base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
+
         self._zipfile.writestr(dest, data=data)
         self._records.append(
             RecordEntry(
                 path=dest,
                 hash_algorithm=_HASH_ALGORITHM,
-                hash_value=hashlib.new(_HASH_ALGORITHM, data=data).hexdigest(),
+                hash_value=hash,
                 size=str(len(data)),
             )
         )
