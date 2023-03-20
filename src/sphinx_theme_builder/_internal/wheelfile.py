@@ -19,7 +19,7 @@ _WINDOWS = os.name == "nt"
 _COPY_BUFSIZE = 1024 * 1024 if _WINDOWS else 64 * 1024
 
 
-def encode_for_record(hasher: hashlib._Hash) -> str:
+def encode_for_record(hasher: "hashlib._Hash") -> str:
     """Takes a hasher and returns the encoded hash value for the RECORD."""
     return base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
 
