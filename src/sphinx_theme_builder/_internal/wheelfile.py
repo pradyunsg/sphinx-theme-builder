@@ -155,14 +155,16 @@ class WheelFile:
 
         data = content.encode()
         hasher = hashlib.new(_HASH_ALGORITHM, data=data)
-        hash = base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
+        hash_value = (
+            base64.urlsafe_b64encode(hasher.digest()).decode("ascii").rstrip("=")
+        )
 
         self._zipfile.writestr(dest, data=data)
         self._records.append(
             RecordEntry(
                 path=dest,
                 hash_algorithm=_HASH_ALGORITHM,
-                hash_value=hash,
+                hash_value=hash_value,
                 size=str(len(data)),
             )
         )
