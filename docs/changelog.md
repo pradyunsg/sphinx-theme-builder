@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0b2
+
+- Adopt the newer copy of `copyfileobj_with_hashing`
+- Correctly encode `RECORD` hashes
+- Document a previously undocumented error case
+- Document the `--pdb` flag
+- Improve documentation to pass nit-picks
+- Improve the `autobuild-failed` documentation
+- Use tomllib on Python 3.11+
+
 ## 0.2.0b1
 
 - Add `--host` to `stb serve`.
