@@ -127,9 +127,13 @@ def generate_metadata(
         ) from error
 
     # Delegated generation.
-    (dist_info / "entry_points.txt").write_text(project.get_entry_points_contents())
-    (dist_info / "LICENSE").write_text(project.get_license_contents())
-    (dist_info / "METADATA").write_text(project.get_metadata_file_contents())
+    (dist_info / "entry_points.txt").write_text(
+        project.get_entry_points_contents(), encoding="utf-8"
+    )
+    (dist_info / "LICENSE").write_text(project.get_license_contents(), encoding="utf-8")
+    (dist_info / "METADATA").write_text(
+        project.get_metadata_file_contents(), encoding="utf-8"
+    )
 
     # Templated generation.
     (dist_info / "WHEEL").write_text(
@@ -140,7 +144,8 @@ def generate_metadata(
             Root-Is-Purelib: true
             Tag: py3-none-any
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     return dist_info.name
