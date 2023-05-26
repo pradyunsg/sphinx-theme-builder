@@ -32,6 +32,14 @@ class ServeCommand:
             help="hostname to serve documentation on (default: 127.0.0.1)",
         ),
         click.Option(
+            ["--re-ignore"],
+            type=click.STRING,
+            default="",
+            show_default=True,
+            show_choices=True,
+            help="Text passed to `sphinx-build` option `--re-ignore`, parsed as a regular expression.",
+        ),
+        click.Option(
             ["--port"],
             type=click.INT,
             default=0,
@@ -75,6 +83,7 @@ class ServeCommand:
         self,
         *,
         host: str,
+        re_ignore: str,
         port: int,
         source_directory: Path,
         builder: str,
@@ -84,6 +93,9 @@ class ServeCommand:
     ) -> int:
         project = Project.from_cwd()
 
+        default_re_ignore = f"{'|'.join(map(re.escape, project.compiled_assets))}"
+        re_ignore = f"{'|'.join((re.escape(re_ignore), default_re_ignore))}"
+
         with tempfile.TemporaryDirectory() as build_directory:
             command = [
                 sys.executable,
@@ -91,7 +103,7 @@ class ServeCommand:
                 "sphinx_autobuild",
                 # sphinx-autobuild flags
                 f"--watch={os.fsdecode(project.source_path)}",
-                f"--re-ignore=({'|'.join(map(re.escape, project.compiled_assets))})",
+                f"--re-ignore=({re_ignore})",
                 f"--port={port}",  # use a random free port
                 f"--pre-build='{sys.executable}' -m sphinx_theme_builder compile",
                 # Sphinx flags
