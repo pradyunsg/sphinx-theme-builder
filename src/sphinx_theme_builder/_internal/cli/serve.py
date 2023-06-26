@@ -37,7 +37,7 @@ class ServeCommand:
             default="",
             show_default=True,
             show_choices=True,
-            help="Text passed to `sphinx-build` option `--re-ignore`, parsed as a regular expression.",
+            help="Text passed to `sphinx_autobuild` option `--re-ignore`, parsed as a regular expression.",
         ),
         click.Option(
             ["--port"],
