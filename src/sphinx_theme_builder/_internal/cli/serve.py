@@ -37,7 +37,7 @@ class ServeCommand:
             default="",
             show_default=True,
             show_choices=True,
-            help="Text passed to `sphinx-build` option `--re-ignore`, parsed as a regular expression.",
+            help="Text passed to `sphinx_autobuild` option `--re-ignore`, parsed as a regular expression.",
         ),
         click.Option(
             ["--port"],
@@ -94,7 +94,7 @@ class ServeCommand:
         project = Project.from_cwd()
 
         default_re_ignore = f"{'|'.join(map(re.escape, project.compiled_assets))}"
-        re_ignore = f"{'|'.join((re.escape(re_ignore), default_re_ignore))}"
+        re_ignore = f"{'|'.join((re_ignore, default_re_ignore))}"
 
         with tempfile.TemporaryDirectory() as build_directory:
             command = [
