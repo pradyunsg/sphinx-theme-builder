@@ -5,6 +5,8 @@ Broadly, it has a `.nodeenv` created using the nodeenv package; and ensures that
 """
 
 import os
+import pathlib
+import platform
 import shlex
 import shutil
 import subprocess
@@ -41,6 +43,24 @@ def _get_bool_env_var(name: str, *, default: bool) -> bool:
     )
 
 
+def _resolve_executable_win_312(name: str, path: str) -> str | None:
+    resolved_name = shutil.which(name, path=path)
+    resolved_path = pathlib.Path(resolved_name)
+    if resolved_path.suffix:
+        return resolved_name
+
+    try:
+        extensions = os.environ.get("PATHEXT")
+    except KeyError:
+        return resolved_name
+
+    for extension in extensions.split(";"):
+        candidate_path = resolved_path.with_suffix(extension)
+        if candidate_path.exists():
+            return os.fsdecode(candidate_path)
+    return resolved_name
+
+
 def run_in(
     nodeenv: Path, args: List[str], *, production: bool = False, **kwargs: Any
 ) -> "Optional[subprocess.CompletedProcess[bytes]]":
@@ -57,8 +77,13 @@ def run_in(
     }
 
     # Fully qualify the first argument.
-    resolved_name = shutil.which(args[0], path=env["PATH"])
-    if not resolved_name:
+    # On Windows with Python 3.12.0, we need to handle modified behavior in which
+    if ((3, 12, 0) <= sys.version_info < (3, 12, 1)) and platform.system() == "Windows":
+        resolved_name = _resolve_executable_win_312(args[0], path=env["PATH"])
+    else:
+        resolved_name = shutil.which(args[0], path=env["PATH"])
+
+    if resolved_name is None:
         raise FileNotFoundError(resolved_name)
     args[0] = resolved_name
 
