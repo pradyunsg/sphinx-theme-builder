@@ -16,7 +16,7 @@ import rich
 from ._internal.distributions import generate_metadata as _generate_metadata
 from ._internal.distributions import generate_source_distribution as _generate_sdist
 from ._internal.distributions import generate_wheel_distribution as _generate_wheel
-from ._internal.errors import DiagnosticError
+from ._internal.errors import STBError
 from ._internal.project import Project
 
 
@@ -43,7 +43,7 @@ def _ensure_has_metadata(
 def _clean_error_presentation() -> Iterator[None]:
     try:
         yield
-    except DiagnosticError as error:
+    except STBError as error:
         rich.get_console().print(error, soft_wrap=True)
         sys.exit(1)
 

@@ -55,7 +55,7 @@ def docs(session):
 
 @nox.session(reuse_venv=True)
 def lint(session: nox.Session):
-    session.install("pre-commit", "mypy")
+    session.install("pre-commit")
 
     args = list(session.posargs)
     args.append("--all-files")
@@ -67,7 +67,7 @@ def lint(session: nox.Session):
 
 
 @nox.session
-def mypy(session: nox.Session):
+def typecheck(session: nox.Session):
     session.install(".[cli]", "mypy", "-r", "tests/requirements.txt")
     session.run("mypy", "src", "tests", "--strict")
 

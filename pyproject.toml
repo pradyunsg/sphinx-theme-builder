@@ -16,6 +16,7 @@ license = { file = "LICENSE" }
 dependencies = [
   "pyproject-metadata",
   "packaging",
+  "diagnostic >= 2.0",
   "rich",        # for output styling
   "nodeenv",     # for NodeJS isolation
   "setuptools",  # for nodeenv

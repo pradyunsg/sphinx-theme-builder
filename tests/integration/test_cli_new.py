@@ -5,9 +5,8 @@ from unittest import mock
 
 from click import Group
 from click.testing import CliRunner
-
 from sphinx_theme_builder._internal.cli.new import _TEMPLATE_URL
-from sphinx_theme_builder._internal.errors import DiagnosticError
+from sphinx_theme_builder._internal.errors import STBError
 
 
 class TestNewCommand:
@@ -62,4 +61,4 @@ class TestNewCommand:
         )
 
         assert process.exit_code == 1, process
-        assert isinstance(process.exception, DiagnosticError)
+        assert isinstance(process.exception, STBError)
