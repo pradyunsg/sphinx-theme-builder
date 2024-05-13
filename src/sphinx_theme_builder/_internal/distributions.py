@@ -9,7 +9,7 @@ import textwrap
 from pathlib import Path
 from typing import Callable, Optional, Tuple
 
-from .errors import DiagnosticError
+from .errors import STBError
 from .nodejs import generate_assets
 from .project import Project
 from .wheelfile import WheelFile, include_parent_paths
@@ -120,9 +120,10 @@ def generate_metadata(
     try:
         os.makedirs(dist_info)
     except OSError as error:
-        raise DiagnosticError(
+        raise STBError(
+            code="metadata-directory-already-exists",
             message="Metadata directory already exists",
-            context=None,
+            causes=[str(dist_info)],
             hint_stmt=None,
         ) from error
 

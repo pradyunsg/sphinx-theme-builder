@@ -10,7 +10,7 @@ else:
 import rich
 from rich.text import Text
 
-from ..errors import DiagnosticError
+from ..errors import STBError
 
 try:
     import build  # noqa
@@ -18,18 +18,18 @@ try:
     import sphinx_autobuild  # type: ignore  # noqa
 except ImportError as import_error:
     rich.print(
-        DiagnosticError(
-            reference="missing-command-line-dependencies",
+        STBError(
+            code="missing-command-line-dependencies",
             message=(
-                "Could not import a package that is required for the `stb` command line."
+                "Could not import package that is required for the `stb` command line."
             ),
-            context=str(import_error),
-            note_stmt=(
-                "The optional [blue]cli[/] dependencies of this package are missing."
+            causes=[str(import_error)],
+            note_stmt=Text.from_markup(
+                "The [bold blue]cli[/] dependencies of this package are missing."
             ),
             hint_stmt=(
-                "During installation, make sure to include the `\\[cli]`. For example:\n"
-                'pip install "sphinx-theme-builder\\[cli]"'
+                "During installation, make sure to include the `[cli]`. For example:\n"
+                'pip install "sphinx-theme-builder[cli]"'
             ),
         ),
         file=sys.stderr,
@@ -47,6 +47,7 @@ class Command(Protocol):
 
 def create_click_command(cls: Type[Command]) -> click.Command:
     # Use the class docstring as the help string
+    assert cls.__doc__
     help_string = inspect.cleandoc(cls.__doc__)
     # Infer the name, from the known context.
     name = cls.__name__[: -len("Command")].lower()
@@ -135,7 +136,7 @@ def main(args: Optional[List[str]] = None) -> None:
     except click.ClickException as error:
         error.show(sys.stderr)
         sys.exit(error.exit_code)  # uses exit codes 1 and 2
-    except DiagnosticError as error:
+    except STBError as error:
         rich.print(error, file=sys.stderr)
         sys.exit(3)
     except Exception:
@@ -144,16 +145,16 @@ def main(args: Optional[List[str]] = None) -> None:
             width=console.width, show_locals=True, word_wrap=True, suppress=[click]
         )
         console.print(
-            DiagnosticError(
-                reference="crash",
+            STBError(
+                code="crash",
                 message="A fatal error occurred.",
-                context="See above for a detailed Python traceback.",
-                note_stmt=(
-                    "If you file an issue, please include the full traceback above."
-                ),
+                causes=["See above for a detailed Python traceback."],
                 hint_stmt=(
                     "This might be due to an issue in sphinx-theme-builder, one of the "
                     "tools it uses internally, or your code."
+                ),
+                note_stmt=(
+                    "If you file an issue, please include the full traceback above."
                 ),
             ),
         )

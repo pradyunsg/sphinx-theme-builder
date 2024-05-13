@@ -183,7 +183,9 @@ class WheelFile:
         with file.open("rb") as source_stream:
             with self._zipfile.open(zipinfo, "w") as dest_stream:
                 hash_value, size = copyfileobj_with_hashing(
-                    source_stream, dest_stream, hash_algorithm=_HASH_ALGORITHM
+                    source_stream,
+                    dest_stream,  # type: ignore[arg-type]
+                    hash_algorithm=_HASH_ALGORITHM,
                 )
         self._records.append(
             RecordEntry(

@@ -100,9 +100,9 @@ class TestProjectFromPath:
         # THEN
         error = ctx.value
         assert "Could not find a `pyproject.toml`" in error.message
-        assert error.context
-        assert str(tmp_path) in error.context
-        assert error.reference == "pyproject-missing"
+        assert len(error.causes) == 1
+        assert str(tmp_path) in error.causes[0]
+        assert error.code == "pyproject-missing"
 
     def test_rejects_on_invalid_pyproject_toml(self, tmp_path: Path) -> None:
         # GIVEN
@@ -115,11 +115,11 @@ class TestProjectFromPath:
         # THEN
         error = ctx.value
         assert "Could not parse `pyproject.toml`" in error.message
-        assert error.context
-        assert str(tmp_path) in error.context
-        assert "pyproject.toml" in error.context
-        assert "line 1, column 7" in error.context
-        assert error.reference == "pyproject-could-not-parse"
+        assert len(error.causes) == 2
+        assert "line 1, column 7" in error.causes[0]
+        assert "pyproject.toml" in error.causes[1]
+        assert str(tmp_path) in error.causes[1]
+        assert error.code == "pyproject-could-not-parse"
 
     def test_rejects_without_project_table(self, tmp_path: Path) -> None:
         # GIVEN
@@ -132,10 +132,10 @@ class TestProjectFromPath:
         # THEN
         error = ctx.value
         assert "Could not find [project] table" in error.message
-        assert error.context
-        assert str(tmp_path) in error.context
-        assert "pyproject.toml" in error.context
-        assert error.reference == "pyproject-no-project-table"
+        assert len(error.causes) == 1
+        assert str(tmp_path) in error.causes[0]
+        assert "pyproject.toml" in error.causes[0]
+        assert error.code == "pyproject-no-project-table"
 
     def test_rejects_without_name(self, tmp_path: Path) -> None:
         # GIVEN
@@ -149,9 +149,9 @@ class TestProjectFromPath:
         error = ctx.value
         assert "Could not find `name`" in error.message
         assert "[project] table" in error.message
-        assert error.context
-        assert "pyproject.toml" in error.context
-        assert error.reference == "pyproject-no-name-in-project-table"
+        assert len(error.causes) == 1
+        assert "pyproject.toml" in error.causes[0]
+        assert error.code == "pyproject-no-name-in-project-table"
 
     def test_rejects_non_canonical_names(self, tmp_path: Path) -> None:
         # GIVEN
@@ -167,9 +167,10 @@ class TestProjectFromPath:
             "Found non-canonical `name` declared in the [project] table"
             in error.message
         )
-        assert error.context
-        assert "pyproject.toml" in error.context
-        assert error.reference == "pyproject-non-canonical-name"
+        assert len(error.causes) == 2
+        assert "Got 'MAGIC'" in error.causes[0]
+        assert "pyproject.toml" in error.causes[1]
+        assert error.code == "pyproject-non-canonical-name"
 
     def test_works_with_proper_static_version(self, tmp_path: Path) -> None:
         # GIVEN
@@ -246,13 +247,13 @@ class TestProjectFromPath:
         # THEN
         error = ctx.value
         assert "No version declaration found for project." in error.message
-        assert error.context
-        assert "__init__.py" in error.context
-        assert "pyproject.toml" in error.context
+        assert len(error.causes) == 1
+        assert "__init__.py" in error.causes[0]
+        assert "pyproject.toml" in error.causes[0]
         assert error.hint_stmt
         assert "forget" in error.hint_stmt
         assert "?" in error.hint_stmt
-        assert error.reference == "project-no-version-declaration"
+        assert error.code == "project-no-version-declaration"
 
     def test_rejects_when_no_python_file_is_available(self, tmp_path: Path) -> None:
         # GIVEN
@@ -273,9 +274,9 @@ class TestProjectFromPath:
         # THEN
         error = ctx.value
         assert "__init__.py is missing" in error.message
-        assert error.context
-        assert "project name is magic" in error.context
-        assert error.reference == "project-init-missing"
+        assert len(error.causes) == 2
+        assert "project name is magic" in error.causes[0]
+        assert error.code == "project-init-missing"
 
     def test_rejects_with_double_declaration(self, tmp_path: Path) -> None:
         # GIVEN
@@ -300,7 +301,7 @@ class TestProjectFromPath:
         assert "Found version declaration in both" in error.message
         assert "pyproject.toml" in error.message
         assert "__init__.py" in error.message
-        assert error.reference == "project-double-version-declaration"
+        assert error.code == "project-double-version-declaration"
 
     def test_rejects_dynamic_with_version_in_pyproject(self, tmp_path: Path) -> None:
         # GIVEN
@@ -326,11 +327,11 @@ class TestProjectFromPath:
         assert "dynamic" in error.message
         assert "version" in error.message
         assert "pyproject.toml" in error.message
-        assert error.context
-        assert "2.3.4" in error.context
+        assert len(error.causes) == 1
+        assert "2.3.4" in error.causes[0]
         assert error.hint_stmt
         assert "removing `version`" in error.hint_stmt
-        assert error.reference == "project-improper-dynamic-version"
+        assert error.code == "project-improper-dynamic-version"
 
     def test_rejects_no_dynamic_with_version_in_python_file(
         self, tmp_path: Path
@@ -355,10 +356,10 @@ class TestProjectFromPath:
         error = ctx.value
         assert "Found version in `__init__.py`" in error.message
         assert '"version" in `project.dynamic' in error.message
-        assert error.context
-        assert "1.2.3" in error.context
+        assert len(error.causes) == 1
+        assert "1.2.3" in error.causes[0]
         assert error.hint_stmt
-        assert error.reference == "project-missing-dynamic-version"
+        assert error.code == "project-missing-dynamic-version"
 
     @pytest.mark.parametrize("value", [1, 1.0, []])
     def test_rejects_non_string_static_versions_toml(
@@ -385,10 +386,10 @@ class TestProjectFromPath:
         error = ctx.value
         assert "Expected " in error.message
         assert "a string" in error.message
-        assert error.context
-        assert f"Got {value}" in error.context
-        assert f"{type(value)}" in error.context
-        assert error.reference == "pyproject-invalid-version"
+        assert len(error.causes) == 1
+        assert f"Got {value}" in error.causes[0]
+        assert f"{type(value)}" in error.causes[0]
+        assert error.code == "pyproject-invalid-version"
 
     def test_rejects_invalid_versions(self, tmp_path: Path) -> None:
         # GIVEN
@@ -412,9 +413,9 @@ class TestProjectFromPath:
         error = ctx.value
         assert "invalid version" in error.message
         assert "asdf" in error.message
-        assert error.context
-        assert "pyproject.toml" in error.context
-        assert error.reference == "project-invalid-version"
+        assert len(error.causes) == 1
+        assert "pyproject.toml" in error.causes[0]
+        assert error.code == "project-invalid-version"
 
     def test_rejects_invalid_python_files(self, tmp_path: Path) -> None:
         # GIVEN
@@ -437,7 +438,8 @@ class TestProjectFromPath:
         # THEN
         error = ctx.value
         assert "Could not parse" in error.message
-        assert error.context
-        assert "__init__.py" in error.context
-        assert "SyntaxError" in error.context
-        assert error.reference == "project-init-invalid-syntax"
+        assert len(error.causes) == 2
+        assert "__init__.py" in error.causes[0]
+        assert "unmatched ')'" in error.causes[1]
+        assert "line 1" in error.causes[1]
+        assert error.code == "project-init-invalid-syntax"
