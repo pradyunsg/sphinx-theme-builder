@@ -56,7 +56,7 @@ def _resolve_executable_win_312(name: str, path: str) -> str | None:
     except KeyError:
         return resolved_name
 
-    for extension in extensions.split(";"):
+    for extension in extensions.split(os.pathsep):
         candidate_path = resolved_path.with_suffix(extension)
         if candidate_path.exists():
             return os.fsdecode(candidate_path)
