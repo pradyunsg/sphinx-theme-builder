@@ -52,7 +52,7 @@ def _resolve_executable_win_312(name: str, path: str) -> str | None:
         return resolved_name
 
     try:
-        extensions = os.environ.get("PATHEXT")
+        extensions = os.environ["PATHEXT"]
     except KeyError:
         return resolved_name
 
