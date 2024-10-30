@@ -46,6 +46,8 @@ def _get_bool_env_var(name: str, *, default: bool) -> bool:
 def _resolve_executable_win_312(name: str, path: str) -> str | None:
     resolved_name = shutil.which(name, path=path)
     resolved_path = pathlib.Path(resolved_name)
+    # Python 3.12.0 prioritises extensionless `which` results
+    # If we found something with an extension, it is correct
     if resolved_path.suffix:
         return resolved_name
 
