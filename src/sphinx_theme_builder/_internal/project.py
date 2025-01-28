@@ -40,9 +40,10 @@ def get_version_using_ast(contents: bytes) -> Optional[str]:
             and len(child.targets) == 1
             and isinstance(child.targets[0], ast.Name)
             and child.targets[0].id == "__version__"
-            and isinstance(child.value, ast.Str)
+            and isinstance(child.value, ast.Constant)
+            and isinstance(child.value.value, str)
         ):
-            version = child.value.s
+            version = child.value.value
             break
 
     return version
