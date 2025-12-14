@@ -151,10 +151,13 @@ def release(session):
 
     # Tag the commit
     session.run(
-        # fmt: off
-        "git", "tag", release_version, "-m", f"Release {release_version}", "-s",
+        "git",
+        "tag",
+        release_version,
+        "-m",
+        f"Release {release_version}",
+        "-s",
         external=True,
-        # fmt: on
     )
 
     # Prepare back-to-development commit
