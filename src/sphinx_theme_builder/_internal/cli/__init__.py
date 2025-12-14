@@ -1,11 +1,6 @@
 import inspect
 import sys
-from typing import Any, Dict, List, Optional, TextIO, Type
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
+from typing import Any, Dict, List, Optional, Protocol, TextIO, Type
 
 import rich
 from rich.text import Text
@@ -41,8 +36,7 @@ class Command(Protocol):
     context_settings: Dict[str, Any]
     interface: List[click.Parameter]
 
-    def run(self, **kwargs: Dict[str, Any]) -> int:
-        ...
+    def run(self, **kwargs: Dict[str, Any]) -> int: ...
 
 
 def create_click_command(cls: Type[Command]) -> click.Command:
@@ -69,6 +63,12 @@ def create_click_command(cls: Type[Command]) -> click.Command:
     return command
 
 
+def _root_callback() -> None:
+    ctx = click.get_current_context()
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+
+
 def compose_command_line() -> click.Group:
     from .compile import CompileCommand
     from .new import NewCommand
@@ -92,6 +92,8 @@ def compose_command_line() -> click.Group:
         name="stb",
         help="sphinx-theme-builder helps make it easier to write sphinx themes.",
         commands={command.name: command for command in click_commands},  # type: ignore
+        invoke_without_command=True,
+        callback=_root_callback,
     )
     return cli
 

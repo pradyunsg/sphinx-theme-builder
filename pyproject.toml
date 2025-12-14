@@ -20,9 +20,8 @@ dependencies = [
   "nodeenv",     # for NodeJS isolation
   "setuptools",  # for nodeenv
   "tomli ; python_version < '3.11'",       # for pyproject.toml parsing
-  "typing_extensions ; python_version <= '3.7'", # for Protocol
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
@@ -31,8 +30,10 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: 3",
   "Topic :: Documentation",
   "Topic :: Software Development :: Documentation",

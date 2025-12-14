@@ -24,7 +24,7 @@ using `pip`:
 pip install "sphinx-theme-builder[cli]"
 ```
 
-This project requires modern versions of CPython (>= 3.7).
+This project requires modern versions of CPython (>= 3.10).
 
 <!-- end-installation -->
 

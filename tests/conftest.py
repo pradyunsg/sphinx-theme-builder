@@ -17,7 +17,7 @@ from click.testing import CliRunner
 # Fixtures
 @pytest.fixture
 def runner() -> CliRunner:
-    return CliRunner(mix_stderr=False)
+    return CliRunner()
 
 
 @pytest.fixture
