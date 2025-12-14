@@ -32,7 +32,6 @@ def get_version_using_ast(contents: bytes) -> Optional[str]:
     tree = ast.parse(contents)
 
     # Only need to check the top-level nodes, and not recurse deeper.
-    version: Optional[str] = None
     for child in tree.body:
         # Look for a simple string assignment to __version__
         if (
@@ -40,12 +39,12 @@ def get_version_using_ast(contents: bytes) -> Optional[str]:
             and len(child.targets) == 1
             and isinstance(child.targets[0], ast.Name)
             and child.targets[0].id == "__version__"
-            and isinstance(child.value, ast.Str)
+            and isinstance(child.value, ast.Constant)
+            and isinstance(child.value.value, str)
         ):
-            version = child.value.s
-            break
+            return child.value.value
 
-    return version
+    return None
 
 
 class ImproperProjectMetadata(DiagnosticError):
@@ -98,8 +97,7 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
         raise ImproperProjectMetadata(
             message=Text("Found non-canonical `name` declared in the [project] table."),
             context=(
-                f"Got '{kebab_name}', expected '{canonical_name}'\n"
-                f"in file {pyproject}"
+                f"Got '{kebab_name}', expected '{canonical_name}'\nin file {pyproject}"
             ),
             hint_stmt=None,
             reference="pyproject-non-canonical-name",
@@ -409,9 +407,9 @@ class Project:
         # File presence
         #
         package_init_file = self.python_package_path / "__init__.py"
-        assert (
-            package_init_file.exists()
-        ), "This should've been validated in `Project.from_path`"
+        assert package_init_file.exists(), (
+            "This should've been validated in `Project.from_path`"
+        )
 
         if not self.theme_conf_path.exists():
             raise InvalidProjectStructure(
