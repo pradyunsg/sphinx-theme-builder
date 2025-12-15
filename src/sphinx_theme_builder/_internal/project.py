@@ -2,6 +2,7 @@
 
 import ast
 import configparser
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -11,9 +12,9 @@ from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
 from rich.text import Text
 
-try:
+if sys.version_info >= (3, 11):
     import tomllib
-except ImportError:
+else:
     import tomli as tomllib
 
 from .errors import DiagnosticError
@@ -110,8 +111,8 @@ def _determine_version(
     package_path: Path, kebab_name: str, pyproject_data: dict[str, Any]
 ) -> 'tuple[str, Literal["pyproject.toml", "__init__.py"]]':
     # Let's look for the version now!
-    declared_in_python = None  # type: Optional[str]
-    declared_in_pyproject = None  # type: Optional[str]
+    declared_in_python: str | None = None
+    declared_in_pyproject: str | None = None
 
     metadata = pyproject_data["project"]
 
@@ -318,7 +319,7 @@ class Project:
             theme_name = kebab_name
 
         try:
-            additional_compiled_static_assets = tool_config[
+            additional_compiled_static_assets: list[str] = tool_config[
                 "additional-compiled-static-assets"
             ]
         except KeyError:

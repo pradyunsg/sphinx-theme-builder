@@ -8,7 +8,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from types import TracebackType
-from typing import BinaryIO
+from typing import IO
 
 _HASH_ALGORITHM = "sha256"
 
@@ -26,8 +26,8 @@ def encode_for_record(hasher: "hashlib._Hash") -> str:
 # Adapted from pradyunsg/installer
 # https://github.com/pradyunsg/installer/blob/0.7.0/src/installer/utils.py#L95
 def copyfileobj_with_hashing(
-    source: BinaryIO,
-    dest: BinaryIO,
+    source: IO[bytes],
+    dest: IO[bytes],
     hash_algorithm: str,
 ) -> tuple[str, int]:
     """Copy a buffer while computing the content's hash and size.
