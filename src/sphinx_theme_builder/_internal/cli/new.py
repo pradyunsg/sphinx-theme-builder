@@ -4,7 +4,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import List
 
 import click
 
@@ -17,7 +16,7 @@ _TEMPLATE_URL = "https://github.com/pradyunsg/sphinx-theme-template/archive/refs
 class NewCommand:
     """Create a new project."""
 
-    interface: List[click.Parameter] = [
+    interface: list[click.Parameter] = [
         click.Argument(
             ["source_directory"],
             required=True,

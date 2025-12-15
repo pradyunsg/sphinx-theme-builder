@@ -6,8 +6,8 @@ import posixpath
 import subprocess
 import tarfile
 import textwrap
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional, Tuple
 
 from .errors import DiagnosticError
 from .nodejs import generate_assets
@@ -15,7 +15,7 @@ from .project import Project
 from .wheelfile import WheelFile, include_parent_paths
 
 
-def _get_vcs_tracked_names(path: Path) -> Optional[Tuple[str, ...]]:
+def _get_vcs_tracked_names(path: Path) -> tuple[str, ...] | None:
     if not (path / ".git").is_dir():
         return None
 
@@ -32,12 +32,12 @@ def _get_vcs_tracked_names(path: Path) -> Optional[Tuple[str, ...]]:
 
 def _sdist_filter(
     project: Project, base: str
-) -> Callable[[tarfile.TarInfo], Optional[tarfile.TarInfo]]:
+) -> Callable[[tarfile.TarInfo], tarfile.TarInfo | None]:
     """Create a filter to pass to tarfile.add, for this project."""
     compiled_assets = project.compiled_assets
     tracked_names = _get_vcs_tracked_names(project.location)
 
-    def _filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:
+    def _filter(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo | None:
         # Include the entry for the root.
         if tarinfo.name == base:
             return tarinfo

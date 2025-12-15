@@ -11,7 +11,7 @@ import subprocess
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 from unittest.mock import patch
 
 from rich.markup import escape
@@ -42,8 +42,8 @@ def _get_bool_env_var(name: str, *, default: bool) -> bool:
 
 
 def run_in(
-    nodeenv: Path, args: List[str], *, production: bool = False, **kwargs: Any
-) -> "Optional[subprocess.CompletedProcess[bytes]]":
+    nodeenv: Path, args: list[str], *, production: bool = False, **kwargs: Any
+) -> "subprocess.CompletedProcess[bytes] | None":
     """Run a command, using a binary from `nodeenv`."""
     assert nodeenv.name == _NODEENV_DIR
 
@@ -129,7 +129,7 @@ def _should_use_system_node(node_version: str) -> bool:
     return True
 
 
-def _relaxed_version_check(expected: str, got: str) -> Optional[str]:
+def _relaxed_version_check(expected: str, got: str) -> str | None:
     """Perform a relaxed check of the failure mode.
 
     Returns None, if the versions match the relaxed check criterion.

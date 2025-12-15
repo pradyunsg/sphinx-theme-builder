@@ -64,3 +64,6 @@ exclude_lines = [
     # Don't complain if code that needs to be run as main isn't run
     "if __name__ == .__main__.:",
 ]
+
+[tool.ruff.lint]
+extend-select = ["I", "UP", "FA", "TC"]

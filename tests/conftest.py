@@ -4,9 +4,10 @@ import os
 import shutil
 import stat
 import tempfile
+from collections.abc import Callable, Generator
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Callable, Generator, Tuple, Type
+from typing import Any
 
 import click
 import pytest
@@ -47,7 +48,7 @@ def rmtree(path: str) -> None:
     def handle_remove_readonly(
         func: Callable[..., Any],
         path: str,
-        exc: Tuple[Type[OSError], OSError, TracebackType],
+        exc: tuple[type[OSError], OSError, TracebackType],
     ) -> None:
         excvalue = exc[1]
         if func in (os.rmdir, os.remove, os.unlink) and excvalue.errno == errno.EACCES:

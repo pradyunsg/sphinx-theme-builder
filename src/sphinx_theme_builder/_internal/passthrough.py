@@ -33,7 +33,6 @@ which in turn was adapted from StackOverflow.
 """
 
 import sys
-from typing import List
 
 if sys.platform != "win32":
     import errno
@@ -54,7 +53,7 @@ if sys.platform != "win32":
         size = struct.pack("HHHH", _ROWS, _COLUMNS, 0, 0)
         fcntl.ioctl(fd, termios.TIOCSWINSZ, size)
 
-    def passthrough_run(args: List[str]) -> int:
+    def passthrough_run(args: list[str]) -> int:
         """Largely found in https://stackoverflow.com/a/31953436"""
         masters, slaves = zip(pty.openpty(), pty.openpty())
         for fd in chain(masters, slaves):
@@ -93,6 +92,6 @@ if sys.platform != "win32":
 else:
     import subprocess
 
-    def passthrough_run(args: List[str]) -> int:
+    def passthrough_run(args: list[str]) -> int:
         p = subprocess.run(args)
         return p.returncode

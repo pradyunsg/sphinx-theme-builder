@@ -8,8 +8,8 @@ __version__ = "0.2.0dev2"
 import contextlib
 import sys
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Dict, Iterator, Optional
 
 import rich
 
@@ -22,7 +22,7 @@ from ._internal.project import Project
 
 @contextlib.contextmanager
 def _ensure_has_metadata(
-    project: Project, metadata_directory: Optional[str]
+    project: Project, metadata_directory: str | None
 ) -> Iterator[Path]:
     """Ensure that the body of a with statement, is executed with metadata generated."""
     if metadata_directory is not None:
@@ -53,7 +53,7 @@ def _clean_error_presentation() -> Iterator[None]:
 #
 def build_sdist(
     sdist_directory: str,
-    config_settings: Optional[Dict[str, str]] = None,
+    config_settings: dict[str, str] | None = None,
 ) -> str:
     """Generate a source distribution and place it into `sdist_directory`.
 
@@ -69,7 +69,7 @@ def build_sdist(
 #
 def prepare_metadata_for_build_wheel(
     metadata_directory: str,
-    config_settings: Optional[Dict[str, str]] = None,
+    config_settings: dict[str, str] | None = None,
 ) -> str:
     """Generate the metadata (.dist-info) and place it in `metadata_directory`.
 
@@ -82,8 +82,8 @@ def prepare_metadata_for_build_wheel(
 
 def build_wheel(
     wheel_directory: str,
-    config_settings: Optional[Dict[str, str]] = None,
-    metadata_directory: Optional[str] = None,
+    config_settings: dict[str, str] | None = None,
+    metadata_directory: str | None = None,
 ) -> str:
     """Generate a wheel distribution and place it into `wheel_directory`.
 
@@ -108,8 +108,8 @@ prepare_metadata_for_build_editable = prepare_metadata_for_build_wheel
 
 def build_editable(
     wheel_directory: str,
-    config_settings: Optional[Dict[str, str]] = None,
-    metadata_directory: Optional[str] = None,
+    config_settings: dict[str, str] | None = None,
+    metadata_directory: str | None = None,
 ) -> str:
     """Generate an editable wheel distribution and place it into `wheel_directory`.
 

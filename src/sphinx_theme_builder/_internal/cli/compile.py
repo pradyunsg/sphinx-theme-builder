@@ -1,6 +1,5 @@
 """Compilation entrypoint."""
 
-from typing import List
 
 import click
 
@@ -11,7 +10,7 @@ from ..project import Project
 class CompileCommand:
     """Compile the current project's assets."""
 
-    interface: List[click.Parameter] = [
+    interface: list[click.Parameter] = [
         click.Option(
             ["--production"],
             is_flag=True,

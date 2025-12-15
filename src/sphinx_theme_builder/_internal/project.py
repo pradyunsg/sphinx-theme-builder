@@ -4,7 +4,7 @@ import ast
 import configparser
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 import pyproject_metadata
 from packaging.utils import canonicalize_name
@@ -22,12 +22,12 @@ if TYPE_CHECKING:
     from typing import Literal
 
 
-def read_toml_file(path: Path) -> Dict[str, Any]:
+def read_toml_file(path: Path) -> dict[str, Any]:
     with path.open("rb") as stream:
         return tomllib.load(stream)
 
 
-def get_version_using_ast(contents: bytes) -> Optional[str]:
+def get_version_using_ast(contents: bytes) -> str | None:
     """Extract the version from the given file, using the Python AST."""
     tree = ast.parse(contents)
 
@@ -55,7 +55,7 @@ class InvalidProjectStructure(DiagnosticError):
     """For issues with the project structure."""
 
 
-def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
+def _load_pyproject(pyproject: Path) -> tuple[str, dict[str, Any]]:
     """Load from the pyproject.toml file, doing the minimal sanity checks."""
     try:
         pyproject_data = read_toml_file(pyproject)
@@ -107,8 +107,8 @@ def _load_pyproject(pyproject: Path) -> Tuple[str, Dict[str, Any]]:
 
 
 def _determine_version(
-    package_path: Path, kebab_name: str, pyproject_data: Dict[str, Any]
-) -> 'Tuple[str, Literal["pyproject.toml", "__init__.py"]]':
+    package_path: Path, kebab_name: str, pyproject_data: dict[str, Any]
+) -> 'tuple[str, Literal["pyproject.toml", "__init__.py"]]':
     # Let's look for the version now!
     declared_in_python = None  # type: Optional[str]
     declared_in_pyproject = None  # type: Optional[str]
@@ -224,7 +224,7 @@ class Project:
 
     theme_name: str
     node_version: str
-    additional_compiled_static_assets: List[str]
+    additional_compiled_static_assets: list[str]
 
     @classmethod
     def from_cwd(cls) -> "Project":
@@ -378,7 +378,7 @@ class Project:
         return self.theme_static_path / "styles" / (self.kebab_name + ".css")
 
     @property
-    def compiled_assets(self) -> Tuple[str, ...]:
+    def compiled_assets(self) -> tuple[str, ...]:
         """A sequence of compiled assets, as relative POSIX paths (to project root)."""
         compiled_assets = [
             self.output_script_path,
@@ -473,7 +473,7 @@ class Project:
 
     def get_entry_points_contents(self) -> str:
         """Get contents for the `entry_points.txt` file in a wheel."""
-        lines: List[str] = []
+        lines: list[str] = []
         for group, mapping in self.metadata.entrypoints.items():
             if lines:
                 lines.append("")  # blank line, for visual clarity

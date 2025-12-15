@@ -9,7 +9,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from types import TracebackType
-from typing import BinaryIO, List, Optional, Set, Tuple, Type
+from typing import BinaryIO
 
 _HASH_ALGORITHM = "sha256"
 
@@ -30,7 +30,7 @@ def copyfileobj_with_hashing(
     source: BinaryIO,
     dest: BinaryIO,
     hash_algorithm: str,
-) -> Tuple[str, int]:
+) -> tuple[str, int]:
     """Copy a buffer while computing the content's hash and size.
 
     Copies the source buffer into the destination buffer while computing the
@@ -55,8 +55,8 @@ def copyfileobj_with_hashing(
     return encode_for_record(hasher), size
 
 
-def include_parent_paths(posix_style_paths: List[str]) -> Tuple[str, ...]:
-    names: Set[str] = set()
+def include_parent_paths(posix_style_paths: list[str]) -> tuple[str, ...]:
+    names: set[str] = set()
     for path_str in posix_style_paths:
         path = PurePosixPath(path_str)
         names.update(parent.as_posix() for parent in path.parents)
@@ -90,28 +90,28 @@ class WheelFile:
         self,
         *,
         path: Path,
-        tracked_names: Optional[Tuple[str, ...]],
-        compiled_assets: Tuple[str, ...],
+        tracked_names: tuple[str, ...] | None,
+        compiled_assets: tuple[str, ...],
     ) -> None:
         self._path = path
         self._tracked_names = tracked_names
         self._compiled_assets = compiled_assets
         self._compiled_assets_and_parents = include_parent_paths(list(compiled_assets))
         self._zipfile = zipfile.ZipFile(path, mode="w")
-        self._records: List[RecordEntry] = []
+        self._records: list[RecordEntry] = []
 
     def __enter__(self) -> "WheelFile":
         return self
 
     def __exit__(
         self,
-        type_: Optional[Type[BaseException]],
-        value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        type_: type[BaseException] | None,
+        value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self._zipfile.close()
 
-    def _exclude(self, path: Path, *, base: Optional[Path]) -> bool:
+    def _exclude(self, path: Path, *, base: Path | None) -> bool:
         # Exclude compiled pyc files.
         if path.name == "__pycache__":
             return True
@@ -171,7 +171,7 @@ class WheelFile:
             )
         )
 
-    def add_file(self, file: Path, *, dest: str, base: Optional[Path]) -> None:
+    def add_file(self, file: Path, *, dest: str, base: Path | None) -> None:
         """Add a file at ``dest``, with the contents of ``file``."""
         assert self._zipfile.fp is not None
 
@@ -195,7 +195,7 @@ class WheelFile:
         )
 
     def add_directory(
-        self, directory: Path, *, dest: str, base: Optional[Path]
+        self, directory: Path, *, dest: str, base: Path | None
     ) -> None:
         """Add the directory to the archive, recursively."""
         assert directory.is_dir()

@@ -1,7 +1,7 @@
 """Exceptions raised from within this package."""
 
 import re
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from rich.console import Console, ConsoleOptions, RenderResult
 from rich.text import Text
@@ -17,7 +17,7 @@ def _is_kebab_case(s: str) -> bool:
 
 
 def _prefix_with_indent(
-    s: Union[Text, str],
+    s: Text | str,
     console: Console,
     *,
     width_offset: int = 0,
@@ -41,11 +41,11 @@ class DiagnosticError(Exception):
         self,
         *,
         kind: 'Literal["error", "warning"]' = "error",
-        reference: Optional[str] = None,
-        message: Union[str, Text],
-        context: Optional[Union[str, Text]],
-        hint_stmt: Optional[Union[str, Text]],
-        note_stmt: Optional[Union[str, Text]] = None,
+        reference: str | None = None,
+        message: str | Text,
+        context: str | Text | None,
+        hint_stmt: str | Text | None,
+        note_stmt: str | Text | None = None,
     ) -> None:
         # Ensure a proper reference is provided.
         if reference is None:

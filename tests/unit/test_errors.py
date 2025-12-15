@@ -2,7 +2,7 @@
 
 import textwrap
 from io import StringIO
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import pytest
 import rich
@@ -69,7 +69,7 @@ def assert_presentation_matches(
     error: DiagnosticError,
     expected: str,
     *,
-    color_system: 'Optional[Literal["auto", "standard", "256", "truecolor", "windows"]]'
+    color_system: 'Literal["auto", "standard", "256", "truecolor", "windows"] | None'
 ) -> None:
     expected_output = textwrap.dedent(expected)
 

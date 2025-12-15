@@ -1,6 +1,6 @@
 import inspect
 import sys
-from typing import Any, Dict, List, Optional, Protocol, TextIO, Type
+from typing import Any, Protocol, TextIO
 
 import rich
 from rich.text import Text
@@ -33,13 +33,13 @@ except ImportError as import_error:
 
 
 class Command(Protocol):
-    context_settings: Dict[str, Any]
-    interface: List[click.Parameter]
+    context_settings: dict[str, Any]
+    interface: list[click.Parameter]
 
-    def run(self, **kwargs: Dict[str, Any]) -> int: ...
+    def run(self, **kwargs: dict[str, Any]) -> int: ...
 
 
-def create_click_command(cls: Type[Command]) -> click.Command:
+def create_click_command(cls: type[Command]) -> click.Command:
     # Use the class docstring as the help string
     help_string = inspect.cleandoc(cls.__doc__)
     # Infer the name, from the known context.
@@ -49,7 +49,7 @@ def create_click_command(cls: Type[Command]) -> click.Command:
     assert name.capitalize() + "Command" == cls.__name__
     assert name == cls.__module__.split(".")[-1]
 
-    context_settings: Optional[Dict[str, Any]] = None
+    context_settings: dict[str, Any] | None = None
     if hasattr(cls, "context_settings"):
         context_settings = cls.context_settings
 
@@ -76,7 +76,7 @@ def compose_command_line() -> click.Group:
     from .package import PackageCommand
     from .serve import ServeCommand
 
-    command_classes: List[Type[Command]] = [
+    command_classes: list[type[Command]] = [
         CompileCommand,  # type: ignore
         NewCommand,  # type: ignore
         PackageCommand,  # type: ignore
@@ -123,7 +123,7 @@ def present_click_usage_error(error: click.UsageError, *, stream: TextIO) -> Non
     )
 
 
-def main(args: Optional[List[str]] = None) -> None:
+def main(args: list[str] | None = None) -> None:
     """The entrypoint for command line stuff."""
     cli = compose_command_line()
     try:

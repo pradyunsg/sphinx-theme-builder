@@ -2,7 +2,6 @@
 
 import subprocess
 from pathlib import Path
-from typing import List, Tuple
 
 import click
 
@@ -22,11 +21,11 @@ class NpmCommand:
     context_settings = dict(
         ignore_unknown_options=True,
     )
-    interface: List[click.Parameter] = [
+    interface: list[click.Parameter] = [
         click.Argument(["arguments"], nargs=-1, type=click.UNPROCESSED),
     ]
 
-    def run(self, arguments: Tuple[str]) -> int:
+    def run(self, arguments: tuple[str]) -> int:
         nodeenv = Path.cwd() / NODEENV_DIRNAME
         if not nodeenv.exists():
             raise DiagnosticError(
