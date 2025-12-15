@@ -17,7 +17,7 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-from .errors import DiagnosticError
+from .errors import STBError
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -48,11 +48,11 @@ def get_version_using_ast(contents: bytes) -> str | None:
     return None
 
 
-class ImproperProjectMetadata(DiagnosticError):
+class ImproperProjectMetadata(STBError):
     """For issues with pyproject.toml contents or other metadata."""
 
 
-class InvalidProjectStructure(DiagnosticError):
+class InvalidProjectStructure(STBError):
     """For issues with the project structure."""
 
 
@@ -63,45 +63,45 @@ def _load_pyproject(pyproject: Path) -> tuple[str, dict[str, Any]]:
     except FileNotFoundError as error:
         raise InvalidProjectStructure(
             message="Could not find a `pyproject.toml`.",
-            context=f"Looked at {pyproject}",
+            causes=[f"Looked at {pyproject}"],
             hint_stmt="Is this a valid Python package?",
-            reference="pyproject-missing",
+            code="pyproject-missing",
         ) from error
     except tomllib.TOMLDecodeError as error:
         raise ImproperProjectMetadata(
             message="Could not parse `pyproject.toml`.",
-            context=f"{error}\npath: {pyproject}",
+            causes=[f"{error}\npath: {pyproject}"],
             hint_stmt=None,
-            reference="pyproject-could-not-parse",
+            code="pyproject-could-not-parse",
         ) from error
 
     project = pyproject_data.get("project", None)
     if project is None:
         raise ImproperProjectMetadata(
             message=Text("Could not find [project] table."),
-            context=f"in file {pyproject}",
+            causes=[f"in file {pyproject}"],
             hint_stmt=None,
-            reference="pyproject-no-project-table",
+            code="pyproject-no-project-table",
         )
 
     kebab_name = project.get("name", None)
     if kebab_name is None:
         raise ImproperProjectMetadata(
             message=Text("Could not find `name` in [project] table."),
-            context=f"in file {pyproject}",
+            causes=[f"in file {pyproject}"],
             hint_stmt=None,
-            reference="pyproject-no-name-in-project-table",
+            code="pyproject-no-name-in-project-table",
         )
 
     canonical_name = canonicalize_name(kebab_name)
     if kebab_name != canonical_name:
         raise ImproperProjectMetadata(
             message=Text("Found non-canonical `name` declared in the [project] table."),
-            context=(
+            causes=[
                 f"Got '{kebab_name}', expected '{canonical_name}'\nin file {pyproject}"
-            ),
+            ],
             hint_stmt=None,
-            reference="pyproject-non-canonical-name",
+            code="pyproject-non-canonical-name",
         )
 
     return kebab_name, pyproject_data
@@ -124,11 +124,11 @@ def _determine_version(
                 message=Text(
                     "Expected 'version' in the [project] table to be a string."
                 ),
-                context=(
+                causes=[
                     f"Got {declared_in_pyproject} which is {type(declared_in_pyproject)} instead."
-                ),
+                ],
                 hint_stmt=None,
-                reference="pyproject-invalid-version",
+                code="pyproject-invalid-version",
             )
 
     # Load the version from __init__ file, if provided.
@@ -136,12 +136,12 @@ def _determine_version(
     if not package_init_file.exists():
         raise InvalidProjectStructure(
             message=f"{package_init_file} is missing.",
-            context=(
+            causes=[
                 "It is required for using sphinx-theme-builder.\n"
                 f"The declared project name is {kebab_name}."
-            ),
+            ],
             hint_stmt=None,
-            reference="project-init-missing",
+            code="project-init-missing",
         )
 
     try:
@@ -149,19 +149,19 @@ def _determine_version(
     except SyntaxError as error:
         raise InvalidProjectStructure(
             message="Could not parse `__init__.py` file",
-            context=f"In file {package_init_file}\n{error!r}",
+            causes=[f"In file {package_init_file}\n{error!r}"],
             hint_stmt=None,
-            reference="project-init-invalid-syntax",
+            code="project-init-invalid-syntax",
         ) from error
 
     if declared_in_pyproject and declared_in_python:
         raise InvalidProjectStructure(
             message="Found version declaration in both `pyproject.toml` and `__init__.py`.",
-            context=(
+            causes=[
                 "The package version MUST only be provided information in one location"
                 f"\nFrom `pyproject.toml`, got {declared_in_pyproject}"
                 f"\nFrom `__init__.py`, got {declared_in_python}"
-            ),
+            ],
             hint_stmt=Text(
                 "It is a good idea to declare the version in Python alone.\n"
                 "You can do this by removing `project.version` from `pyproject.toml` "
@@ -169,7 +169,7 @@ def _determine_version(
                 "[project]\n"
                 'dynamic = ["version"]'
             ),
-            reference="project-double-version-declaration",
+            code="project-double-version-declaration",
         )
     elif declared_in_python:
         if "version" not in metadata.get("dynamic", []):
@@ -178,14 +178,14 @@ def _determine_version(
                     "Found version in `__init__.py` but pyproject.toml does not "
                     'include "version" in `project.dynamic` list.'
                 ),
-                context=f"From `__init__.py`, got version {declared_in_python}",
+                causes=[f"From `__init__.py`, got version {declared_in_python}"],
                 hint_stmt=Text(
                     'You solve this by including "version" in the `project.dynamic` '
                     "list. Like so:\n\n"
                     "[project]\n"
                     'dynamic = ["version"]'
                 ),
-                reference="project-missing-dynamic-version",
+                code="project-missing-dynamic-version",
             )
         return (declared_in_python, "__init__.py")
     elif declared_in_pyproject:
@@ -195,23 +195,23 @@ def _determine_version(
                     'Declared "version" as `dynamic`, while also using `version` key '
                     "in `pyproject.toml`."
                 ),
-                context=f"From `pyproject.toml`, got version {declared_in_pyproject}.",
+                causes=[f"From `pyproject.toml`, got version {declared_in_pyproject}."],
                 hint_stmt=(
                     "You can solve this by removing `version` from `project.dynamic`."
                 ),
-                reference="project-improper-dynamic-version",
+                code="project-improper-dynamic-version",
             )
         return (declared_in_pyproject, "pyproject.toml")
 
     raise InvalidProjectStructure(
         message="No version declaration found for project.",
-        context=f"Looked at {package_init_file} and corresponding `pyproject.toml`.",
+        causes=[f"Looked at {package_init_file} and corresponding `pyproject.toml`."],
         hint_stmt=(
             "Did you forget to declare the version? "
             "It's the 'project.version' key in `pyproject.toml` "
             "or the `__version__` attribute in `__init__.py`."
         ),
-        reference="project-no-version-declaration",
+        code="project-no-version-declaration",
     )
 
 
@@ -252,9 +252,9 @@ class Project:
         except InvalidVersion as error:
             raise ImproperProjectMetadata(
                 message=f"Got an invalid version: {version_s}",
-                context=f"This came from `{version_comes_from}`",
+                causes=[f"This came from `{version_comes_from}`"],
                 hint_stmt=None,
-                reference="project-invalid-version",
+                code="project-invalid-version",
             ) from error
 
         # Get the metadata, and validate it.
@@ -265,19 +265,19 @@ class Project:
         except pyproject_metadata.ConfigurationError as error:
             raise InvalidProjectStructure(
                 message="Provided project metadata is not valid.",
-                context=str(error),
+                causes=[str(error)],
                 hint_stmt="This is related to the contents of the pyproject.toml file.",
-                reference="invalid-pyproject-toml",
+                code="invalid-pyproject-toml",
             )
 
         if metadata.license is None:
             raise ImproperProjectMetadata(
                 message="No license is declared in `pyproject.toml`.",
-                context=(
+                causes=[
                     "It is required for this to be packaged using sphinx-theme-builder."
-                ),
+                ],
                 hint_stmt="This is related to the contents of the pyproject.toml file.",
-                reference="no-license-declared",
+                code="no-license-declared",
             )
 
         # Ensure that nothing other than the version is dynamic.
@@ -290,9 +290,9 @@ class Project:
         if metadata.dynamic:
             raise ImproperProjectMetadata(
                 message="Got unsupported keys for dynamic metadata.",
-                context=str(metadata.dynamic),
+                causes=[str(metadata.dynamic)],
                 hint_stmt="This is related to the contents of the pyproject.toml file.",
-                reference="unsupported-dynamic-keys",
+                code="unsupported-dynamic-keys",
             )
 
         # TODO: Factor this out, and add proper error messages.
@@ -304,13 +304,13 @@ class Project:
         except KeyError:
             raise ImproperProjectMetadata(
                 message="Did not get any node-version, from pyproject.toml file.",
-                context=(
+                causes=[
                     "It is required for this to be packaged using sphinx-theme-builder."
-                ),
+                ],
                 hint_stmt=Text(
                     "Did you set node-version in [tool.sphinx-theme-builder]?"
                 ),
-                reference="no-node-version",
+                code="no-node-version",
             )
 
         try:
@@ -415,25 +415,25 @@ class Project:
         if not self.theme_conf_path.exists():
             raise InvalidProjectStructure(
                 message=f"{self.theme_conf_path} does not exist.",
-                context="It is required for using sphinx-theme-builder.",
+                causes=["It is required for using sphinx-theme-builder."],
                 hint_stmt="Did you set the correct theme-name in pyproject.toml?",
-                reference="missing-theme-conf",
+                code="missing-theme-conf",
             )
 
         if not self.input_scripts_path.exists():
             raise InvalidProjectStructure(
                 message=f"{self.input_scripts_path} does not exist.",
-                context="It is required for using sphinx-theme-builder.",
+                causes=["It is required for using sphinx-theme-builder."],
                 hint_stmt=None,
-                reference="missing-javascript",
+                code="missing-javascript",
             )
 
         if not self.input_stylesheets_path.exists():
             raise InvalidProjectStructure(
                 message=f"{self.input_stylesheets_path} does not exist.",
-                context="It is required for using sphinx-theme-builder.",
+                causes=["It is required for using sphinx-theme-builder."],
                 hint_stmt=None,
-                reference="missing-stylesheet",
+                code="missing-stylesheet",
             )
 
         #
@@ -451,17 +451,17 @@ class Project:
         except (OSError, configparser.Error) as error:
             raise InvalidProjectStructure(
                 message=f"Could not open/parse {self.theme_conf_path}.",
-                context=str(error),
+                causes=[str(error)],
                 hint_stmt=None,
-                reference="could-not-read-theme-conf",
+                code="could-not-read-theme-conf",
             ) from error
 
         if specified_stylesheet != expected_stylesheet:
             raise InvalidProjectStructure(
                 message=f"Incorrect stylesheet set in {self.theme_conf_path}.",
-                context=f"Expected {expected_stylesheet}, got {specified_stylesheet}.",
+                causes=[f"Expected {expected_stylesheet}, got {specified_stylesheet}."],
                 hint_stmt=None,
-                reference="theme-conf-incorrect-stylesheet",
+                code="theme-conf-incorrect-stylesheet",
             )
 
     def get_metadata_file_contents(self) -> str:

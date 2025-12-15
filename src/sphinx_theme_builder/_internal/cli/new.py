@@ -7,7 +7,7 @@ from pathlib import Path
 
 import click
 
-from ..errors import DiagnosticError
+from ..errors import STBError
 from ..ui import log
 
 _TEMPLATE_URL = "https://github.com/pradyunsg/sphinx-theme-template/archive/refs/heads/sphinx-theme-template-stable.zip"
@@ -36,13 +36,13 @@ class NewCommand:
         pyproject_toml = source_directory / "pyproject.toml"
         setup_py = source_directory / "setup.py"
         if pyproject_toml.exists() or setup_py.exists():
-            raise DiagnosticError(
-                reference="can-not-overwrite-existing-python-project",
+            raise STBError(
+                code="can-not-overwrite-existing-python-project",
                 message="Refusing to generate a new project in provided directory.",
-                context=(
+                causes=[
                     "This directory contains a Python project, which will not be "
                     "overwritten."
-                ),
+                ],
                 hint_stmt=(
                     "This command should be used on empty/non-existing directories."
                 ),
@@ -60,10 +60,10 @@ class NewCommand:
         try:
             subprocess.run(command, check=True)
         except subprocess.CalledProcessError as error:
-            raise DiagnosticError(
-                reference="cookiecutter-failed",
+            raise STBError(
+                code="cookiecutter-failed",
                 message="Cookiecutter failed to generate the project.",
-                context=f"Exit code: {error.returncode}",
+                causes=[f"Exit code: {error.returncode}"],
                 note_stmt="cookiecutter's failure output is available above.",
                 hint_stmt=(
                     "[b]@pradyunsg[/] might still need to write/update the supporting "

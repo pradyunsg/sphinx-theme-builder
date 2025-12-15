@@ -7,7 +7,7 @@ from pathlib import Path
 
 import click
 
-from ..errors import DiagnosticError
+from ..errors import STBError
 from ..project import Project
 from ..ui import log
 
@@ -128,10 +128,12 @@ class ServeCommand:
             try:
                 subprocess.run(command, check=True)
             except subprocess.CalledProcessError as error:
-                raise DiagnosticError(
-                    reference="autobuild-failed",
+                raise STBError(
+                    code="autobuild-failed",
                     message=f"[b]sphinx-autobuild[/] exited with a non-zero exit code {error.returncode}.",
-                    context="See above for failure output from the underlying tooling.",
+                    causes=[
+                        "See above for failure output from the underlying tooling."
+                    ],
                     hint_stmt=None,
                 ) from error
         return 0

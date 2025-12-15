@@ -20,6 +20,7 @@ dependencies = [
   "nodeenv",     # for NodeJS isolation
   "setuptools",  # for nodeenv
   "tomli ; python_version < '3.11'",       # for pyproject.toml parsing
+  "diagnostic>=2",  # for rich error messages
 ]
 requires-python = ">=3.10"
 

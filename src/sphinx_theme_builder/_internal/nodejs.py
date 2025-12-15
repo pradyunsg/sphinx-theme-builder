@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 from rich.markup import escape
 
-from .errors import DiagnosticError
+from .errors import STBError
 from .passthrough import passthrough_run
 from .project import Project
 from .ui import log
@@ -33,10 +33,10 @@ def _get_bool_env_var(name: str, *, default: bool) -> bool:
         return False
     if value.lower() in {"true", "1"}:
         return True
-    raise DiagnosticError(
-        reference="non-boolean-env-variable-value",
+    raise STBError(
+        code="non-boolean-env-variable-value",
         message=f"The provided value for `{name}` is invalid.",
-        context=f"{name}={escape(value)}",
+        causes=[f"{name}={escape(value)}"],
         hint_stmt=f"Provide a boolean value for `{name}` (true, false, 1, 0).",
     )
 
@@ -101,10 +101,10 @@ def _run_python_nodeenv(*args: str) -> None:
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as error:
-        raise DiagnosticError(
-            reference="nodeenv-creation-failed",
+        raise STBError(
+            code="nodeenv-creation-failed",
             message="Failed to create a `nodeenv`",
-            context="See above for failure output from the underlying tooling.",
+            causes=["See above for failure output from the underlying tooling."],
             hint_stmt=(
                 "A `urllib.error.HTTPError` indicates that the issue is "
                 "related to the network or the availability of NodeJS release files. "
@@ -120,10 +120,10 @@ def _should_use_system_node(node_version: str) -> bool:
         return False
 
     if sys.platform == "win32":
-        raise DiagnosticError(
-            reference="can-not-use-system-node-on-windows",
+        raise STBError(
+            code="can-not-use-system-node-on-windows",
             message="sphinx-theme-builder can not use the system node on Windows.",
-            context="The underlying tooling (nodeenv) does not yet support this.",
+            causes=["The underlying tooling (nodeenv) does not yet support this."],
             hint_stmt="Unset `STB_USE_SYSTEM_NODE`, which is currently set to 'true'",
         )
     return True
@@ -160,13 +160,13 @@ def ensure_version_matches(expected: str, got: str) -> None:
         return
 
     if not _get_bool_env_var("STB_RELAX_NODE_VERSION_CHECK", default=False):
-        raise DiagnosticError(
-            reference="nodeenv-version-mismatch",
+        raise STBError(
+            code="nodeenv-version-mismatch",
             message="The `nodeenv` for this project is unhealthy.",
-            context=(
+            causes=[
                 "There is a mismatch between what is present in the environment "
                 f"({got}) and the expected version of NodeJS ({expected})."
-            ),
+            ],
             hint_stmt=(
                 f"Deleting the {_NODEENV_DIR} directory and trying again may work."
             ),
@@ -180,10 +180,10 @@ def ensure_version_matches(expected: str, got: str) -> None:
     if rejection_reason is None:
         return
 
-    raise DiagnosticError(
-        reference="node-version-mismatch",
+    raise STBError(
+        code="node-version-mismatch",
         message="The node version is not compatible with the expected version.",
-        context=f"{rejection_reason}\nSee above for the expected and actual version.",
+        causes=[f"{rejection_reason}\nSee above for the expected and actual version."],
         hint_stmt=(
             "You need to use a compatible version of NodeJS to build the theme. "
         ),
@@ -219,10 +219,10 @@ def run_npm_build(nodeenv: Path, *, production: bool) -> None:
     try:
         run_in(nodeenv, ["npm", "run-script", "build"], production=production)
     except subprocess.CalledProcessError as error:
-        raise DiagnosticError(
-            reference="js-build-failed",
+        raise STBError(
+            code="js-build-failed",
             message="The Javascript-based build pipeline failed.",
-            context="See above for failure output from the underlying tooling.",
+            causes=["See above for failure output from the underlying tooling."],
             hint_stmt=None,
         ) from error
 
@@ -231,19 +231,19 @@ def populate_npm_packages(nodeenv: Path, node_modules: Path) -> None:
     try:
         run_in(nodeenv, ["npm", "install", "--include=dev"])
     except FileNotFoundError as error:
-        raise DiagnosticError(
-            reference="nodeenv-unhealthy-npm-not-found",
+        raise STBError(
+            code="nodeenv-unhealthy-npm-not-found",
             message="The `nodeenv` for this project is unhealthy.",
-            context=str(error),
+            causes=[str(error)],
             hint_stmt=(
                 f"Deleting the {_NODEENV_DIR} directory and trying again may work."
             ),
         ) from error
     except subprocess.CalledProcessError as error:
-        raise DiagnosticError(
-            reference="js-install-failed",
+        raise STBError(
+            code="js-install-failed",
             message="Javascript dependency installation failed.",
-            context="See above for failure output from the underlying tooling.",
+            causes=["See above for failure output from the underlying tooling."],
             hint_stmt=None,
         ) from error
 
@@ -269,19 +269,19 @@ def generate_assets(project: Project, *, production: bool) -> None:
     try:
         process = run_in(nodeenv, ["node", "--version"], stdout=subprocess.PIPE)
     except FileNotFoundError as error:
-        raise DiagnosticError(
-            reference="nodeenv-unhealthy-file-not-found",
+        raise STBError(
+            code="nodeenv-unhealthy-file-not-found",
             message="The `nodeenv` for this project is unhealthy.",
-            context=str(error),
+            causes=[str(error)],
             hint_stmt=(
                 f"Deleting the {_NODEENV_DIR} directory and trying again may work."
             ),
         ) from error
     except subprocess.CalledProcessError as error:
-        raise DiagnosticError(
-            reference="nodeenv-unhealthy-subprocess-failure",
+        raise STBError(
+            code="nodeenv-unhealthy-subprocess-failure",
             message="The `nodeenv` for this project is unhealthy.",
-            context="See above for failure output from the underlying tooling.",
+            causes=["See above for failure output from the underlying tooling."],
             hint_stmt=(
                 f"Deleting the {_NODEENV_DIR} directory and trying again may work."
             ),
@@ -311,10 +311,10 @@ def generate_assets(project: Project, *, production: bool) -> None:
             try:
                 shutil.rmtree(node_modules)
             except OSError as error:
-                raise DiagnosticError(
-                    reference="unable-to-cleanup-node-modules",
+                raise STBError(
+                    code="unable-to-cleanup-node-modules",
                     message="Could not remove node_modules directory.",
-                    context=str(error),
+                    causes=[str(error)],
                     hint_stmt=f"Deleting {node_modules} and trying again may work.",
                 ) from error
 

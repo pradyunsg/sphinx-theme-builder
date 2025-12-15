@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 
-from ..errors import DiagnosticError
+from ..errors import STBError
 from ..nodejs import _NODEENV_DIR as NODEENV_DIRNAME
 from ..nodejs import run_in
 
@@ -28,11 +28,11 @@ class NpmCommand:
     def run(self, arguments: tuple[str]) -> int:
         nodeenv = Path.cwd() / NODEENV_DIRNAME
         if not nodeenv.exists():
-            raise DiagnosticError(
+            raise STBError(
                 message="Could not find the `.nodeenv` directory to use.",
-                context=str(nodeenv),
+                causes=[str(nodeenv)],
                 hint_stmt="Did you run `stb compile` yet?",
-                reference="no-nodeenv",
+                code="no-nodeenv",
             )
 
         try:
