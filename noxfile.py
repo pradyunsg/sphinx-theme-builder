@@ -98,21 +98,23 @@ def test(session):
     )
 
 
-def get_release_versions(version_file):
+def get_release_versions(version_file: str) -> tuple[str, str]:
     marker = "__version__ = "
 
     with open(version_file) as f:
         for line in f:
             if line.startswith(marker):
                 version = line[len(marker) + 1 : -2]
-                current_version, current_dev_number = version.split("dev")
                 break
         else:
             raise RuntimeError("Could not find current version.")
 
-    next_dev_number = int(current_dev_number) + 1
-    release_version = f"{current_version}b{next_dev_number}"
-    next_version = f"{current_version}dev{next_dev_number}"
+    major, minor, *rest, final_segment = version.split(".")
+    assert final_segment == "dev1", f"version must end with '.dev1': {version!r}"
+    next_minor = str(int(minor) + 1)
+
+    release_version = ".".join([major, minor, *rest])
+    next_version = ".".join([major, next_minor, *rest, "dev1"])
 
     return release_version, next_version
 
