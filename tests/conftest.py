@@ -6,7 +6,6 @@ import stat
 import tempfile
 from collections.abc import Callable, Generator
 from pathlib import Path
-from types import TracebackType
 from typing import Any
 
 import click
@@ -48,17 +47,20 @@ def rmtree(path: str) -> None:
     def handle_remove_readonly(
         func: Callable[..., Any],
         path: str,
-        exc: tuple[type[OSError], OSError, TracebackType],
+        excvalue: BaseException,
     ) -> None:
-        excvalue = exc[1]
-        if func in (os.rmdir, os.remove, os.unlink) and excvalue.errno == errno.EACCES:
+        if (
+            func in (os.rmdir, os.remove, os.unlink)
+            and isinstance(excvalue, OSError)
+            and excvalue.errno == errno.EACCES
+        ):
             for p in (path, os.path.dirname(path)):
                 os.chmod(p, os.stat(p).st_mode | stat.S_IWUSR)
             func(path)
         else:
             raise  # noqa
 
-    shutil.rmtree(path, ignore_errors=False, onerror=handle_remove_readonly)
+    shutil.rmtree(path, ignore_errors=False, onexc=handle_remove_readonly)
 
 
 # --------------------------------------------------------------------------------------
