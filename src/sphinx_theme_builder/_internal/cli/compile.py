@@ -1,6 +1,5 @@
 """Compilation entrypoint."""
 
-
 import click
 
 from ..nodejs import generate_assets

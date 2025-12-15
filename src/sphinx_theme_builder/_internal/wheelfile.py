@@ -1,5 +1,4 @@
-"""A helper class to make it easier to generate a wheel.
-"""
+"""A helper class to make it easier to generate a wheel."""
 
 import base64
 import hashlib
@@ -194,9 +193,7 @@ class WheelFile:
             )
         )
 
-    def add_directory(
-        self, directory: Path, *, dest: str, base: Path | None
-    ) -> None:
+    def add_directory(self, directory: Path, *, dest: str, base: Path | None) -> None:
         """Add the directory to the archive, recursively."""
         assert directory.is_dir()
         assert self._zipfile.fp is not None

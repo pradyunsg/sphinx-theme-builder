@@ -69,7 +69,7 @@ def assert_presentation_matches(
     error: DiagnosticError,
     expected: str,
     *,
-    color_system: 'Literal["auto", "standard", "256", "truecolor", "windows"] | None'
+    color_system: 'Literal["auto", "standard", "256", "truecolor", "windows"] | None',
 ) -> None:
     expected_output = textwrap.dedent(expected)
 

@@ -49,10 +49,10 @@ compiled. Add them to the project's `.gitignore`:
   theme's assets.
 - `node_modules` - The NodeJS packages that are installed for use, to compile
   the theme's assets.
-- `src/<my_amazing_theme>/theme/<my-amazing-theme>/static/styles` - The compiled CSS assets for the
-  theme
-- `src/<my_amazing_theme>/theme/<my-amazing-theme>/static/scripts` - The compiled JS assets for the
-  theme
+- `src/<my_amazing_theme>/theme/<my-amazing-theme>/static/styles` - The compiled
+  CSS assets for the theme
+- `src/<my_amazing_theme>/theme/<my-amazing-theme>/static/scripts` - The
+  compiled JS assets for the theme
 
 ## How to get this right
 

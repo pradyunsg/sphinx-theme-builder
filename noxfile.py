@@ -55,14 +55,14 @@ def docs(session):
 
 @nox.session(reuse_venv=True)
 def lint(session: nox.Session):
-    session.install("pre-commit", "mypy")
+    session.install("prek", "mypy")
 
     args = list(session.posargs)
     args.append("--all-files")
     if "CI" in os.environ:
         args.append("--show-diff-on-failure")
 
-    session.run("pre-commit", "run", *args)
+    session.run("prek", "run", *args)
     session.notify("mypy")
 
 

@@ -8,11 +8,14 @@ class TestCompileCommand:
     """`stb compile`"""
 
     def test_calls_generate_assets(self, runner: CliRunner, cli: Group) -> None:
-        with mock.patch(
-            "sphinx_theme_builder._internal.cli.compile.generate_assets"
-        ) as mocked_generate_assets, mock.patch(
-            "sphinx_theme_builder._internal.cli.compile.Project"
-        ) as mocked_project:
+        with (
+            mock.patch(
+                "sphinx_theme_builder._internal.cli.compile.generate_assets"
+            ) as mocked_generate_assets,
+            mock.patch(
+                "sphinx_theme_builder._internal.cli.compile.Project"
+            ) as mocked_project,
+        ):
             with runner.isolated_filesystem():
                 process = runner.invoke(cli, ["compile"])
 
@@ -27,11 +30,14 @@ class TestCompileCommand:
     def test_calls_generate_assets_in_production(
         self, runner: CliRunner, cli: Group
     ) -> None:
-        with mock.patch(
-            "sphinx_theme_builder._internal.cli.compile.generate_assets"
-        ) as mocked_generate_assets, mock.patch(
-            "sphinx_theme_builder._internal.cli.compile.Project"
-        ) as mocked_project:
+        with (
+            mock.patch(
+                "sphinx_theme_builder._internal.cli.compile.generate_assets"
+            ) as mocked_generate_assets,
+            mock.patch(
+                "sphinx_theme_builder._internal.cli.compile.Project"
+            ) as mocked_project,
+        ):
             with runner.isolated_filesystem():
                 process = runner.invoke(cli, ["compile", "--production"])
 
