@@ -14,7 +14,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 
 dependencies = [
-  "pyproject-metadata",
+  "pyproject-metadata >= 0.9.0",
   "packaging",
   "rich",        # for output styling
   "nodeenv",     # for NodeJS isolation
