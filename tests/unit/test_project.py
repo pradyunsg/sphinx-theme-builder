@@ -441,3 +441,115 @@ class TestProjectFromPath:
         assert "__init__.py" in cause
         assert "SyntaxError" in cause
         assert error.code == "project-init-invalid-syntax"
+
+    def test_rejects_when_no_license_declared(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic"
+                version = "1.0.0"
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "src" / "magic").mkdir(parents=True)
+        (tmp_path / "src" / "magic" / "__init__.py").write_text("")
+
+        # WHEN
+        with pytest.raises(ImproperProjectMetadata) as ctx:
+            Project.from_path(tmp_path)
+
+        # THEN
+        error = ctx.value
+        assert "No license is declared" in error.message
+        assert error.code == "no-license-declared"
+
+    def test_rejects_missing_license_file(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic"
+                version = "1.0.0"
+                license = { file = "LICENSE" }
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "src" / "magic").mkdir(parents=True)
+        (tmp_path / "src" / "magic" / "__init__.py").write_text("")
+
+        # WHEN
+        with pytest.raises(InvalidProjectStructure) as ctx:
+            Project.from_path(tmp_path)
+
+        # THEN
+        error = ctx.value
+        assert "Provided project metadata is not valid." in error.message
+        [cause] = error.causes
+        assert "License file not found" in cause
+        assert "LICENSE" in cause
+        assert error.code == "invalid-pyproject-toml"
+
+    def test_works_with_legacy_license_file(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic"
+                version = "1.0.0"
+                license = { file = "LICENSE" }
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "LICENSE").write_text("MIT")
+        (tmp_path / "src" / "magic").mkdir(parents=True)
+        (tmp_path / "src" / "magic" / "__init__.py").write_text("")
+
+        # WHEN
+        project = Project.from_path(tmp_path)
+
+        # THEN
+        expected_licenses = [Path("LICENSE")]
+        assert sorted(project.get_license_file_paths()) == expected_licenses
+        assert sorted(project.metadata.license_files or []) == expected_licenses
+
+    def test_works_with_license_files(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic"
+                version = "1.0.0"
+                license-files = ["LICENSE", "licenses/*"]
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "LICENSE").write_text("MIT")
+        (tmp_path / "licenses").mkdir()
+        (tmp_path / "licenses" / "LICENSE").write_text("Apache-2.0")
+        (tmp_path / "src" / "magic").mkdir(parents=True)
+        (tmp_path / "src" / "magic" / "__init__.py").write_text("")
+
+        # WHEN
+        project = Project.from_path(tmp_path)
+
+        # THEN
+        expected_licenses = [Path("LICENSE"), Path("licenses") / "LICENSE"]
+        assert sorted(project.get_license_file_paths()) == expected_licenses
+        assert sorted(project.metadata.license_files or []) == expected_licenses

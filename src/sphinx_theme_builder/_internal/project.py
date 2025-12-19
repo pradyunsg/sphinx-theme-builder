@@ -3,6 +3,7 @@
 import ast
 import configparser
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -270,15 +271,46 @@ class Project:
                 code="invalid-pyproject-toml",
             )
 
-        if metadata.license is None:
+        # Note for posterity: PEP 639 also suggests warning on the use of the legacy
+        # `license` values -- this isn't currently done since it didn't make sense to
+        # start warning for something that was the only possible way to do things. A
+        # warning should probably get added sometime in 2027 or so.
+        missing_license_declaration = (
+            metadata.license is None and not metadata.license_files
+        )
+        if missing_license_declaration:
             raise ImproperProjectMetadata(
                 message="No license is declared in `pyproject.toml`.",
                 causes=[
-                    "It is required for this to be packaged using sphinx-theme-builder."
+                    "It is required for this to be packaged using sphinx-theme-builder.",
+                    "Looked at pyproject.toml -> [project] -> license/license-files",
                 ],
                 hint_stmt="This is related to the contents of the pyproject.toml file.",
                 code="no-license-declared",
             )
+
+        # Handle legacy `license.file` -> `license-files` transformation.
+        if (
+            metadata.license is not None
+            and not isinstance(metadata.license, str)
+            and metadata.license.file is not None
+        ):
+            # Ensured by pyproject-metadata
+            assert metadata.license_files is None
+
+            license_file = metadata.license.file
+            if not license_file.exists():
+                raise ImproperProjectMetadata(
+                    message="Declared license file does not exist.",
+                    causes=[
+                        f"Looked at {license_file}",
+                        "Specified in pyproject.toml -> [project] -> license -> file",
+                    ],
+                    hint_stmt="Did you specify the correct path?",
+                    code="invalid-pyproject-toml",
+                )
+
+            metadata.license_files = [license_file.relative_to(path)]
 
         # Ensure that nothing other than the version is dynamic.
         metadata.version = version
@@ -468,9 +500,10 @@ class Project:
         """Get contents for the `METADATA` file in a wheel."""
         return str(self.metadata.as_rfc822())
 
-    def get_license_contents(self) -> str:
-        """Get contents for the `LICENSE` file in a wheel."""
-        return self.metadata.license.text
+    def get_license_file_paths(self) -> Iterable[Path]:
+        """License files that must be included in distributions."""
+        if self.metadata.license_files is not None:
+            yield from self.metadata.license_files
 
     def get_entry_points_contents(self) -> str:
         """Get contents for the `entry_points.txt` file in a wheel."""

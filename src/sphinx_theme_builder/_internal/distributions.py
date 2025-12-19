@@ -8,6 +8,7 @@ import tarfile
 import textwrap
 from collections.abc import Callable
 from pathlib import Path
+from shutil import copyfile
 
 from .errors import STBError
 from .nodejs import generate_assets
@@ -36,6 +37,9 @@ def _sdist_filter(
     """Create a filter to pass to tarfile.add, for this project."""
     compiled_assets = project.compiled_assets
     tracked_names = _get_vcs_tracked_names(project.location)
+    required_license_paths = {
+        os.fsdecode(fp) for fp in project.get_license_file_paths()
+    }
 
     def _filter(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo | None:
         # Include the entry for the root.
@@ -55,6 +59,10 @@ def _sdist_filter(
         # Exclude compiled assets.
         if name in compiled_assets:
             return None
+
+        # Never exclude license files.
+        if name in required_license_paths:
+            return tarinfo
 
         # Exclude things that are excluded from version control.
         if tracked_names is not None and name not in tracked_names:
@@ -130,7 +138,18 @@ def generate_metadata(
     (dist_info / "entry_points.txt").write_text(
         project.get_entry_points_contents(), encoding="utf-8"
     )
-    (dist_info / "LICENSE").write_text(project.get_license_contents(), encoding="utf-8")
+
+    # License files go under `licenses/`.
+    license_files = project.get_license_file_paths()
+    if license_files:
+        dest_dir = dist_info / "licenses"
+        dest_dir.mkdir()
+        for fp in license_files:
+            copyfile(
+                fp,
+                dest_dir / fp.relative_to(project.location),
+            )
+
     (dist_info / "METADATA").write_text(
         project.get_metadata_file_contents(), encoding="utf-8"
     )
