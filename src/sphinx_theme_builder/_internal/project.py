@@ -335,6 +335,7 @@ class Project:
                 )
 
             metadata.license_files = [license_file.relative_to(path)]
+            metadata.license = None
 
         # Ensure that nothing other than the version is dynamic.
         metadata.version = version

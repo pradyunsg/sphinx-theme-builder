@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.2
+
+- Fix bug in license file handling for PEP 639, related to transforming legacy
+  `license = { file = "..." }` metadata into `license-files` automatically.
+
 ## v0.3.1
 
 - Fix bug in license file handling for PEP 639, related to transforming legacy
