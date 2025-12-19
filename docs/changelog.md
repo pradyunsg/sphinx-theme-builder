@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0
+## v0.3.0
 
 - Drop support for Python 3.9 and below.
 - Update classifiers to reflect support for Python 3.10-3.14.
