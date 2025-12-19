@@ -9,6 +9,14 @@ repos:
         types: [text]
         pass_filenames: true
 
+      - id: diagnostic-check-docs
+        name: diagnostic.check-docs
+        entry: python -m diagnostic.check-docs src docs/errors.md
+        language: python
+        additional_dependencies: [diagnostic]
+        pass_filenames: false
+        files: "(^src/|^docs/errors.md$)"
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.9
     hooks:
