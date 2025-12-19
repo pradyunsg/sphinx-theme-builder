@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1
+
+- Fix bug in license file handling for PEP 639, related to transforming legacy
+  `license = { file = "..." }` metadata into `license-files` automatically.
+
 ## v0.3.0
 
 - Drop support for Python 3.9 and below.
