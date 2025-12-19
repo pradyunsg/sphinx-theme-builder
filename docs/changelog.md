@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0
+
+- Drop support for Python 3.9 and below.
+- Update classifiers to reflect support for Python 3.10-3.14.
+- Move to non-beta versioning!
+- Support newer `pyproject.toml` metadata for import names and licenses.
+- Migrate to [diagnostic](https://github.com/pradyunsg/diagnostic) for errors.
+- Add `--re-ignore` to `stb serve`.
+
 ## 0.2.0b2
 
 - Adopt the newer copy of `copyfileobj_with_hashing`
