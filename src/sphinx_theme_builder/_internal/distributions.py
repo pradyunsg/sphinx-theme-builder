@@ -145,10 +145,7 @@ def generate_metadata(
         dest_dir = dist_info / "licenses"
         dest_dir.mkdir()
         for fp in license_files:
-            copyfile(
-                fp,
-                dest_dir / fp.relative_to(project.location),
-            )
+            copyfile(fp, dest_dir / fp)
 
     (dist_info / "METADATA").write_text(
         project.get_metadata_file_contents(), encoding="utf-8"
