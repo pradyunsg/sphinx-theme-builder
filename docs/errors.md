@@ -158,6 +158,15 @@ the `project` table and mentions the problematic key.
 can find more details by looking up documentation about the `[project]` table
 (eg: {pep}`621`).
 
+## invalid-import-names
+
+This error indicates that the `import-names` declared in the `pyproject.toml`
+file do not match the expected value, which is derived from the project's name.
+
+**What you can do:** Remove the `import-names` key in the `[project]` table of
+the `pyproject.toml` file, or update it to match the expected value from the
+error message.
+
 ## pyproject-missing
 
 This error indicates that theme does not have a `pyproject.toml` file in the

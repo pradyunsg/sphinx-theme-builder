@@ -271,6 +271,30 @@ class Project:
                 code="invalid-pyproject-toml",
             )
 
+        if metadata.import_namespaces is not None:
+            raise ImproperProjectMetadata(
+                message="Found unsupported `import-namespaces` key in metadata.",
+                causes=[
+                    "sphinx-theme-builder does not support namespace packages.",
+                    "Looked at pyproject.toml -> [project] -> import-namespaces",
+                ],
+                hint_stmt="Remove the `import-namespaces` key from the pyproject.toml file.",
+                code="invalid-pyproject-toml",
+            )
+
+        if metadata.import_names is not None:
+            snake_name = kebab_name.replace("-", "_")
+            if metadata.import_names != [snake_name]:
+                raise ImproperProjectMetadata(
+                    message="Declared import-names do not match expected value.",
+                    causes=[
+                        f"Got {metadata.import_names}, expected [{snake_name!r}]",
+                        "Looked at pyproject.toml -> [project] -> import-names",
+                    ],
+                    hint_stmt="`import-names` must match the only import name.",
+                    code="invalid-import-names",
+                )
+
         # Note for posterity: PEP 639 also suggests warning on the use of the legacy
         # `license` values -- this isn't currently done since it didn't make sense to
         # start warning for something that was the only possible way to do things. A
