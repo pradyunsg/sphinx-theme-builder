@@ -98,35 +98,22 @@ def test(session):
     )
 
 
-def get_release_versions(version_file: str) -> tuple[str, str]:
-    marker = "__version__ = "
-
-    with open(version_file) as f:
-        for line in f:
-            if line.startswith(marker):
-                version = line[len(marker) + 1 : -2]
-                break
-        else:
-            raise RuntimeError("Could not find current version.")
-
-    major, minor, *rest, final_segment = version.split(".")
-    assert final_segment == "dev1", f"version must end with '.dev1': {version!r}"
+def get_next_version(release_version: str) -> str:
+    major, minor, _ = release_version.split(".", 2)
     next_minor = str(int(minor) + 1)
-
-    release_version = ".".join([major, minor, *rest])
-    next_version = ".".join([major, next_minor, *rest, "dev1"])
-
-    return release_version, next_version
+    return ".".join([major, next_minor, "0", "dev1"])
 
 
 @nox.session
 def release(session):
+    [release_version] = session.posargs
+
     version_file = f"src/{PACKAGE_NAME}/__init__.py"
     allowed_upstreams = [
         f"git@github.com:pradyunsg/{PACKAGE_NAME.replace('_', '-')}.git"
     ]
 
-    release_version, next_version = get_release_versions(version_file)
+    next_version = get_next_version(release_version)
 
     session.install("build", "twine", "release-helper")
 
