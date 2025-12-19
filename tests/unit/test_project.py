@@ -553,3 +553,89 @@ class TestProjectFromPath:
         expected_licenses = [Path("LICENSE"), Path("licenses") / "LICENSE"]
         assert sorted(project.get_license_file_paths()) == expected_licenses
         assert sorted(project.metadata.license_files or []) == expected_licenses
+
+    def test_rejects_import_namespaces(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic"
+                version = "1.0.0"
+                license = { text = "MIT" }
+                import-namespaces = ["something"]
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "src" / "magic").mkdir(parents=True)
+        (tmp_path / "src" / "magic" / "__init__.py").write_text("")
+
+        # WHEN
+        with pytest.raises(ImproperProjectMetadata) as ctx:
+            Project.from_path(tmp_path)
+
+        # THEN
+        error = ctx.value
+        assert "unsupported `import-namespaces` key" in error.message
+        assert error.code == "invalid-pyproject-toml"
+
+    def test_rejects_mismatched_import_names(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic"
+                version = "1.0.0"
+                license = { text = "MIT" }
+                import-names = ["MAGIC", "notmagic"]
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "src" / "magic").mkdir(parents=True)
+        (tmp_path / "src" / "magic" / "__init__.py").write_text("")
+        (tmp_path / "src" / "notmagic").mkdir(parents=True)
+        (tmp_path / "src" / "notmagic" / "__init__.py").write_text("")
+
+        # WHEN
+        with pytest.raises(ImproperProjectMetadata) as ctx:
+            Project.from_path(tmp_path)
+
+        # THEN
+        error = ctx.value
+        assert "import-names do not match expected value" in error.message
+        assert "['magic']" in error.causes[0]
+        assert "['MAGIC', 'notmagic']" in error.causes[0]
+        assert error.code == "invalid-import-names"
+
+    def test_works_with_matching_import_names(self, tmp_path: Path) -> None:
+        # GIVEN
+        (tmp_path / "pyproject.toml").write_text(
+            textwrap.dedent(
+                """
+                [project]
+                name = "magic-project"
+                version = "1.0.0"
+                license = { text = "MIT" }
+                import-names = ["magic_project"]
+
+                [tool.sphinx-theme-builder]
+                node-version = "16.13.0"
+                """
+            )
+        )
+        (tmp_path / "src" / "magic_project").mkdir(parents=True)
+        (tmp_path / "src" / "magic_project" / "__init__.py").write_text("")
+
+        # WHEN
+        project = Project.from_path(tmp_path)
+
+        # THEN
+        assert project.snake_name == "magic_project"
+        assert project.metadata.import_names == ["magic_project"]
