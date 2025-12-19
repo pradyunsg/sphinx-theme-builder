@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.0
+
+- A non-beta release for 0.2.0, that's compatible with older Python versions.
+
 ## 0.2.0b2
 
 - Adopt the newer copy of `copyfileobj_with_hashing`
