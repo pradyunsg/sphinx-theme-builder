@@ -1,7 +1,7 @@
 # Documentation for this file can be found at:
 # https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository
 
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
   - name: Support Request
     url: https://github.com/pradyunsg/sphinx-theme-builder/discussions/categories/support
@@ -14,7 +14,3 @@ contact_links:
   - name: Feature Request / Enhancement
     url: https://github.com/pradyunsg/sphinx-theme-builder/discussions/categories/ideas
     about: Feature requests may be raised as an "Ideas" discussion.
-
-  - name: "(maintainers only) Blank issue"
-    url: https://github.com/pradyunsg/sphinx-theme-builder/issues/new
-    about: This link can only be used by the maintainers of this project.
