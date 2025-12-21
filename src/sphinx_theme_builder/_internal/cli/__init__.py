@@ -1,4 +1,5 @@
 import inspect
+import re
 import sys
 from typing import Any, Protocol, TextIO
 
@@ -39,16 +40,23 @@ class Command(Protocol):
     def run(self, **kwargs: dict[str, Any]) -> int: ...
 
 
+def _infer_command_name(cls_basename: str) -> str:
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1-\2", cls_basename).lower()
+
+
 def create_click_command(cls: type[Command]) -> click.Command:
     # Use the class docstring as the help string
     assert cls.__doc__ is not None
     help_string = inspect.cleandoc(cls.__doc__)
+
     # Infer the name, from the known context.
-    name = cls.__name__[: -len("Command")].lower()
+    cls_basename = cls.__name__[: -len("Command")]
+    name = _infer_command_name(cls_basename)
 
     # Double check that things are named correctly.
-    assert name.capitalize() + "Command" == cls.__name__
-    assert name == cls.__module__.split(".")[-1]
+    assert cls.__name__.endswith("Command")
+    assert "".join(s.capitalize() for s in name.split("-")) == cls_basename
+    assert name.replace("-", "_") == cls.__module__.rsplit(".", 1)[-1]
 
     context_settings: dict[str, Any] | None = None
     if hasattr(cls, "context_settings"):
