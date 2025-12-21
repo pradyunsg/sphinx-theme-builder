@@ -80,6 +80,7 @@ def _root_callback() -> None:
 
 def compose_command_line() -> click.Group:
     from .compile import CompileCommand
+    from .fetch_sample_docs import FetchSampleDocsCommand
     from .new import NewCommand
     from .npm import NpmCommand
     from .package import PackageCommand
@@ -91,6 +92,7 @@ def compose_command_line() -> click.Group:
         PackageCommand,  # type: ignore
         ServeCommand,  # type: ignore
         NpmCommand,  # type: ignore
+        FetchSampleDocsCommand,  # type: ignore
     ]
 
     # Convert our commands into click objects.

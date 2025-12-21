@@ -405,6 +405,35 @@ themes like [Furo] or [pydata-sphinx-theme] as the base for that.
 [furo]: https://github.com/pradyunsg/furo/
 [pydata-sphinx-theme]: https://github.com/pydata/pydata-sphinx-theme/
 
+## fetch-sample-docs-clone-failed
+
+This error indicates that the sample documentation repository could not be
+cloned. This can happen for many reasons, some of which could be:
+
+- `git` not being available
+- Invalid reference being provided via `--ref`
+- Network connectivity issues
+- The sphinx-themes.org repository has moved
+
+**What you can do:** Investigate the `git clone` failure, based on the logs
+provided by git -- the specific action items will vary by failure mode.
+
+## fetch-sample-docs-missing-directory
+
+This error indicates that the requested subdirectory (e.g. `sample-docs/`) was
+not found in the fetched repository at the given ref. This can happen if the
+repository structure changed or if an incorrect `--ref` was supplied.
+
+**What you can do:** Verify the repository and subdirectory exist (eg: by
+inspecting the repository on GitHub).
+
+## fetch-sample-docs-copy-failed
+
+This error indicates that the sample documentation could not be copied to the
+requested destination folder.
+
+**What you can do:** Investigate the failure mentioned and resolve it.
+
 ## no-nodeenv
 
 This error is raised by `stb npm` when the user tries to use it without creating
