@@ -144,8 +144,8 @@ def _relaxed_version_check(expected: str, got: str) -> str | None:
     assert len(expected_parts) == len(got_parts) == 2, f"{expected};{got}"
 
     if expected_parts[0] != got_parts[0]:
-        return "Minor version does not match the value declared in the theme."
-    if int(expected_parts[1]) < int(got_parts[1]):
+        return "Major version does not match the value declared in the theme."
+    if int(expected_parts[1]) > int(got_parts[1]):
         return "Minor version is lower than the value declared in the theme."
     return None
 
