@@ -375,6 +375,17 @@ not be located.
 match what is expected. You may also need to update your build system to
 generate the file in the corresponding location.
 
+## metadata-directory-already-exists
+
+This error indicates that the `.dist-info` directory that Sphinx Theme Builder
+needs to create for the package's metadata already exists, and was not
+overwritten.
+
+This is unusual, since the tool building the theme (such as `pip` or `build`)
+is expected to provide an empty directory for this.
+
+**What you can do:** Delete the directory shown in the error and try again.
+
 ## missing-command-line-dependencies
 
 This error indicates that one or more of the dependencies that are needed to use

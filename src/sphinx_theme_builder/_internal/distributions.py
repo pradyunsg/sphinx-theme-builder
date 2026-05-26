@@ -129,8 +129,9 @@ def generate_metadata(
         os.makedirs(dist_info)
     except OSError as error:
         raise STBError(
+            code="metadata-directory-already-exists",
             message="Metadata directory already exists",
-            causes=[],
+            causes=[str(dist_info)],
             hint_stmt=None,
         ) from error
 
