@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import ClassVar
 
 import click
 
@@ -16,7 +17,7 @@ _TEMPLATE_URL = "https://github.com/pradyunsg/sphinx-theme-template/archive/refs
 class NewCommand:
     """Create a new project."""
 
-    interface: list[click.Parameter] = [
+    interface: ClassVar[list[click.Parameter]] = [
         click.Argument(
             ["source_directory"],
             required=True,
@@ -40,8 +41,10 @@ class NewCommand:
                 code="can-not-overwrite-existing-python-project",
                 message="Refusing to generate a new project in provided directory.",
                 causes=[
-                    "This directory contains a Python project, which will not be "
-                    "overwritten."
+                    (
+                        "This directory contains a Python project, which will not be "
+                        "overwritten."
+                    )
                 ],
                 hint_stmt=(
                     "This command should be used on empty/non-existing directories."

@@ -164,8 +164,10 @@ def ensure_version_matches(expected: str, got: str) -> None:
             code="nodeenv-version-mismatch",
             message="The `nodeenv` for this project is unhealthy.",
             causes=[
-                "There is a mismatch between what is present in the environment "
-                f"({got}) and the expected version of NodeJS ({expected})."
+                (
+                    "There is a mismatch between what is present in the environment "
+                    f"({got}) and the expected version of NodeJS ({expected})."
+                )
             ],
             hint_stmt=(
                 f"Deleting the {_NODEENV_DIR} directory and trying again may work."
@@ -297,9 +299,7 @@ def generate_assets(project: Project, *, production: bool) -> None:
     ensure_version_matches(expected, got)
 
     need_to_populate = False
-    if created_new_nodeenv:
-        need_to_populate = True
-    elif not node_modules.exists():
+    if created_new_nodeenv or not node_modules.exists():
         need_to_populate = True
     elif node_modules.stat().st_mtime < package_json.stat().st_mtime:
         log("[yellow]#[/] [cyan]Detected changes in [magenta]package.json[cyan].[/]")

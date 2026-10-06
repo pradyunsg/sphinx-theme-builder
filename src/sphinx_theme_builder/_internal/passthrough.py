@@ -93,5 +93,5 @@ else:
     import subprocess
 
     def passthrough_run(args: list[str]) -> int:
-        p = subprocess.run(args)
+        p = subprocess.run(args, check=False)
         return p.returncode

@@ -15,9 +15,9 @@ class TestCompileCommand:
             mock.patch(
                 "sphinx_theme_builder._internal.cli.compile.Project"
             ) as mocked_project,
+            runner.isolated_filesystem(),
         ):
-            with runner.isolated_filesystem():
-                process = runner.invoke(cli, ["compile"])
+            process = runner.invoke(cli, ["compile"])
 
         assert process.exit_code == 0, process
 
@@ -37,9 +37,9 @@ class TestCompileCommand:
             mock.patch(
                 "sphinx_theme_builder._internal.cli.compile.Project"
             ) as mocked_project,
+            runner.isolated_filesystem(),
         ):
-            with runner.isolated_filesystem():
-                process = runner.invoke(cli, ["compile", "--production"])
+            process = runner.invoke(cli, ["compile", "--production"])
 
         assert process.exit_code == 0, process
 

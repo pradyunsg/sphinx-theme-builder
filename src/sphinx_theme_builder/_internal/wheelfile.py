@@ -10,6 +10,8 @@ from pathlib import Path, PurePosixPath
 from types import TracebackType
 from typing import IO
 
+from typing_extensions import Self
+
 _HASH_ALGORITHM = "sha256"
 
 # Borrowed from CPython's shutil.py
@@ -79,7 +81,7 @@ class RecordEntry:
             )
         else:
             assert not self.hash_algorithm
-            return ",".join((self.path, "", self.size))
+            return f"{self.path},,{self.size}"
 
 
 class WheelFile:
@@ -99,7 +101,7 @@ class WheelFile:
         self._zipfile = zipfile.ZipFile(path, mode="w")
         self._records: list[RecordEntry] = []
 
-    def __enter__(self) -> "WheelFile":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
@@ -130,12 +132,10 @@ class WheelFile:
                 return False
 
         # Exclude things that are excluded from version control.
-        if self._tracked_names is not None:
-            if normalised_path not in self._tracked_names:
-                return True
-
-        # If we're here, we've excluded all the files that needed to be excluded.
-        return False
+        return (
+            self._tracked_names is not None
+            and normalised_path not in self._tracked_names
+        )
 
     @property
     def name(self) -> str:
@@ -179,11 +179,13 @@ class WheelFile:
 
         # Copy the file object.
         zipinfo = zipfile.ZipInfo.from_file(file, dest)
-        with file.open("rb") as source_stream:
-            with self._zipfile.open(zipinfo, "w") as dest_stream:
-                hash_value, size = copyfileobj_with_hashing(
-                    source_stream, dest_stream, hash_algorithm=_HASH_ALGORITHM
-                )
+        with (
+            file.open("rb") as source_stream,
+            self._zipfile.open(zipinfo, "w") as dest_stream,
+        ):
+            hash_value, size = copyfileobj_with_hashing(
+                source_stream, dest_stream, hash_algorithm=_HASH_ALGORITHM
+            )
         self._records.append(
             RecordEntry(
                 path=dest,

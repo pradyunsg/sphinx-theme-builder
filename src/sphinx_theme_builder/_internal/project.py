@@ -138,8 +138,10 @@ def _determine_version(
         raise InvalidProjectStructure(
             message=f"{package_init_file} is missing.",
             causes=[
-                "It is required for using sphinx-theme-builder.\n"
-                f"The declared project name is {kebab_name}."
+                (
+                    "It is required for using sphinx-theme-builder.\n"
+                    f"The declared project name is {kebab_name}."
+                )
             ],
             hint_stmt=None,
             code="project-init-missing",
@@ -159,9 +161,11 @@ def _determine_version(
         raise InvalidProjectStructure(
             message="Found version declaration in both `pyproject.toml` and `__init__.py`.",
             causes=[
-                "The package version MUST only be provided information in one location"
-                f"\nFrom `pyproject.toml`, got {declared_in_pyproject}"
-                f"\nFrom `__init__.py`, got {declared_in_python}"
+                (
+                    "The package version MUST only be provided information in one location"
+                    f"\nFrom `pyproject.toml`, got {declared_in_pyproject}"
+                    f"\nFrom `__init__.py`, got {declared_in_python}"
+                )
             ],
             hint_stmt=Text(
                 "It is a good idea to declare the version in Python alone.\n"
@@ -453,7 +457,7 @@ class Project:
             path.relative_to(self.location).as_posix() for path in compiled_assets
         )
         # Tack on the .map files
-        return files + tuple(map((lambda x: x + ".map"), files))
+        return files + tuple(x + ".map" for x in files)
 
     def validate_file_structure_and_contents(self) -> None:
         """Validate the project's file structure and check that it matches the template.

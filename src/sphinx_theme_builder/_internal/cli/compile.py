@@ -1,5 +1,7 @@
 """Compilation entrypoint."""
 
+from typing import ClassVar
+
 import click
 
 from ..nodejs import generate_assets
@@ -9,7 +11,7 @@ from ..project import Project
 class CompileCommand:
     """Compile the current project's assets."""
 
-    interface: list[click.Parameter] = [
+    interface: ClassVar[list[click.Parameter]] = [
         click.Option(
             ["--production"],
             is_flag=True,

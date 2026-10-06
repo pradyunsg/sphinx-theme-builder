@@ -1,7 +1,7 @@
 import inspect
 import re
 import sys
-from typing import Any, Protocol, TextIO
+from typing import Any, ClassVar, Protocol, TextIO
 
 import rich
 from rich.text import Text
@@ -34,8 +34,8 @@ except ImportError as import_error:
 
 
 class Command(Protocol):
-    context_settings: dict[str, Any]
-    interface: list[click.Parameter]
+    context_settings: ClassVar[dict[str, Any]]
+    interface: ClassVar[list[click.Parameter]]
 
     def run(self, **kwargs: dict[str, Any]) -> int: ...
 
@@ -151,7 +151,7 @@ def main(args: list[str] | None = None) -> None:
     except STBError as error:
         rich.print(error, file=sys.stderr)
         sys.exit(3)
-    except Exception:
+    except Exception:  # noqa: BLE001 -- Present unexpected CLI failures with a traceback.
         console = rich.console.Console(stderr=True)
         console.print_exception(
             width=console.width, show_locals=True, word_wrap=True, suppress=[click]

@@ -2,6 +2,7 @@
 
 import subprocess
 import sys
+from typing import ClassVar
 
 import click
 
@@ -11,7 +12,7 @@ from ..ui import log
 class PackageCommand:
     """Generate Python distribution files. (sdist and wheel)"""
 
-    interface: list[click.Parameter] = []
+    interface: ClassVar[list[click.Parameter]] = []
 
     def run(self) -> int:
         """Make it happen."""

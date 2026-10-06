@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import ClassVar
 
 import click
 
@@ -18,7 +19,7 @@ class FetchSampleDocsCommand:
     This needs `git` on PATH, configured for read access to the repository.
     """
 
-    interface: list[click.Parameter] = [
+    interface: ClassVar[list[click.Parameter]] = [
         click.Argument(
             ["destination_folder"],
             required=True,

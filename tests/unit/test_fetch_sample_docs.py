@@ -142,15 +142,17 @@ def test_fetch_and_populate_missing_directory_raises_STBError(tmp_path: Path) ->
     clone_path.mkdir()
 
     # WHEN
-    with mock.patch.object(cmd, "clone_git_subfolder"):
-        with pytest.raises(STBError) as ctx:
-            cmd.fetch_and_populate(
-                clone_path=clone_path,
-                repository="https://example.org/repo.git",
-                directory="sample-docs/",
-                git_ref=None,
-                destination_folder=tmp_path / "dest",
-            )
+    with (
+        mock.patch.object(cmd, "clone_git_subfolder"),
+        pytest.raises(STBError) as ctx,
+    ):
+        cmd.fetch_and_populate(
+            clone_path=clone_path,
+            repository="https://example.org/repo.git",
+            directory="sample-docs/",
+            git_ref=None,
+            destination_folder=tmp_path / "dest",
+        )
 
     # THEN
     assert ctx.value.code == "fetch-sample-docs-missing-directory"

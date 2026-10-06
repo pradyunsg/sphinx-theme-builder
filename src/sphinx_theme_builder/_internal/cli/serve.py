@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import ClassVar
 
 import click
 
@@ -15,7 +16,7 @@ from ..ui import log
 class ServeCommand:
     """Serve the provided documentation, with livereload on changes."""
 
-    interface = [
+    interface: ClassVar[list[click.Parameter]] = [
         click.Option(
             ["--builder"],
             type=click.Choice(["html", "dirhtml"]),
@@ -94,7 +95,7 @@ class ServeCommand:
         project = Project.from_cwd()
 
         default_re_ignore = f"{'|'.join(map(re.escape, project.compiled_assets))}"
-        re_ignore = f"{'|'.join((re_ignore, default_re_ignore))}"
+        re_ignore = f"{f'{re_ignore}|{default_re_ignore}'}"
 
         with tempfile.TemporaryDirectory() as build_directory:
             command = [

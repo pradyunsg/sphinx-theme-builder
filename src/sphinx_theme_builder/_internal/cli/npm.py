@@ -2,6 +2,7 @@
 
 import subprocess
 from pathlib import Path
+from typing import ClassVar
 
 import click
 
@@ -18,10 +19,10 @@ class NpmCommand:
         stb npm -- --help
     """
 
-    context_settings = dict(
-        ignore_unknown_options=True,
-    )
-    interface: list[click.Parameter] = [
+    context_settings: ClassVar[dict[str, bool]] = {
+        "ignore_unknown_options": True,
+    }
+    interface: ClassVar[list[click.Parameter]] = [
         click.Argument(["arguments"], nargs=-1, type=click.UNPROCESSED),
     ]
 

@@ -101,7 +101,7 @@ def test(session):
 def get_next_version(release_version: str) -> str:
     major, minor, _ = release_version.split(".", 2)
     next_minor = str(int(minor) + 1)
-    return ".".join([major, next_minor, "0", "dev1"])
+    return f"{major}.{next_minor}.0.dev1"
 
 
 @nox.session
