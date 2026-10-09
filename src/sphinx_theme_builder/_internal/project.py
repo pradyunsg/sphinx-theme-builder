@@ -23,6 +23,8 @@ from .errors import STBError
 if TYPE_CHECKING:
     from typing import Literal
 
+NODEENV_DIR = ".nodeenv"
+
 
 def read_toml_file(path: Path) -> dict[str, Any]:
     with path.open("rb") as stream:
@@ -398,6 +400,10 @@ class Project:
     @property
     def snake_name(self) -> str:
         return self.kebab_name.replace("-", "_")
+
+    @property
+    def nodeenv_path(self) -> Path:
+        return self.location / NODEENV_DIR
 
     @property
     def source_path(self) -> Path:

@@ -18,10 +18,9 @@ from rich.markup import escape
 
 from .errors import STBError
 from .passthrough import passthrough_run
-from .project import Project
+from .project import NODEENV_DIR, Project
 from .ui import log
 
-_NODEENV_DIR = ".nodeenv"
 _BIN_DIR = "Scripts" if os.name == "nt" else "bin"
 
 
@@ -41,11 +40,20 @@ def _get_bool_env_var(name: str, *, default: bool) -> bool:
     )
 
 
+def resolve_binary_in_nodeenv(nodeenv: Path, binary_name: str) -> str:
+    """Resolve the full path to a binary within the given `nodeenv`."""
+    assert nodeenv.name == NODEENV_DIR
+    retval = shutil.which(binary_name, path=os.fsdecode(nodeenv / _BIN_DIR))
+    if retval is None:
+        raise FileNotFoundError(f"Binary `{binary_name}` not found in nodeenv.")
+    return retval
+
+
 def run_in(
     nodeenv: Path, args: list[str], *, production: bool = False, **kwargs: Any
 ) -> "subprocess.CompletedProcess[bytes] | None":
     """Run a command, using a binary from `nodeenv`."""
-    assert nodeenv.name == _NODEENV_DIR
+    assert nodeenv.name == NODEENV_DIR
 
     log(f"[magenta](nodeenv) $[/] [blue]{' '.join(args)}[/]")
     env = {
@@ -66,7 +74,7 @@ def run_in(
         if not kwargs:
             returncode = passthrough_run(args)
             if returncode:
-                cmd = " ".join(shlex.quote(arg) for arg in args)
+                cmd = shlex.join(args)
                 raise subprocess.CalledProcessError(returncode=returncode, cmd=cmd)
             return None
         else:
@@ -170,7 +178,7 @@ def ensure_version_matches(expected: str, got: str) -> None:
                 )
             ],
             hint_stmt=(
-                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
+                f"Deleting the {NODEENV_DIR} directory and trying again may work."
             ),
         )
 
@@ -238,7 +246,7 @@ def populate_npm_packages(nodeenv: Path, node_modules: Path) -> None:
             message="The `nodeenv` for this project is unhealthy.",
             causes=[str(error)],
             hint_stmt=(
-                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
+                f"Deleting the {NODEENV_DIR} directory and trying again may work."
             ),
         ) from error
     except subprocess.CalledProcessError as error:
@@ -255,7 +263,7 @@ def populate_npm_packages(nodeenv: Path, node_modules: Path) -> None:
 
 def generate_assets(project: Project, *, production: bool) -> None:
     package_json = project.location / "package.json"
-    nodeenv = project.location / _NODEENV_DIR
+    nodeenv = project.nodeenv_path
     node_modules = project.location / "node_modules"
 
     assert package_json.exists()
@@ -276,7 +284,7 @@ def generate_assets(project: Project, *, production: bool) -> None:
             message="The `nodeenv` for this project is unhealthy.",
             causes=[str(error)],
             hint_stmt=(
-                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
+                f"Deleting the {NODEENV_DIR} directory and trying again may work."
             ),
         ) from error
     except subprocess.CalledProcessError as error:
@@ -285,7 +293,7 @@ def generate_assets(project: Project, *, production: bool) -> None:
             message="The `nodeenv` for this project is unhealthy.",
             causes=["See above for failure output from the underlying tooling."],
             hint_stmt=(
-                f"Deleting the {_NODEENV_DIR} directory and trying again may work."
+                f"Deleting the {NODEENV_DIR} directory and trying again may work."
             ),
         ) from error
 

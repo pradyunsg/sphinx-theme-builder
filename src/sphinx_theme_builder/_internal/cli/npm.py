@@ -7,8 +7,8 @@ from typing import ClassVar
 import click
 
 from ..errors import STBError
-from ..nodejs import _NODEENV_DIR as NODEENV_DIRNAME
 from ..nodejs import run_in
+from ..project import NODEENV_DIR
 
 
 class NpmCommand:
@@ -27,7 +27,7 @@ class NpmCommand:
     ]
 
     def run(self, arguments: tuple[str]) -> int:
-        nodeenv = Path.cwd() / NODEENV_DIRNAME
+        nodeenv = Path.cwd() / NODEENV_DIR
         if not nodeenv.exists():
             raise STBError(
                 message="Could not find the `.nodeenv` directory to use.",
