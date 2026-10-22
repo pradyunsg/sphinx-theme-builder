@@ -3,6 +3,7 @@ import errno
 import os
 import shutil
 import stat
+import sys
 import tempfile
 from collections.abc import Callable, Generator
 from pathlib import Path
@@ -58,9 +59,18 @@ def rmtree(path: str) -> None:
                 os.chmod(p, os.stat(p).st_mode | stat.S_IWUSR)
             func(path)
         else:
-            raise  # noqa
+            raise excvalue
 
-    shutil.rmtree(path, ignore_errors=False, onexc=handle_remove_readonly)
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(path, ignore_errors=False, onexc=handle_remove_readonly)
+    else:
+        shutil.rmtree(
+            path,
+            ignore_errors=False,
+            onerror=lambda func, path, exc_info: handle_remove_readonly(
+                func, path, exc_info[1]
+            ),
+        )
 
 
 # --------------------------------------------------------------------------------------

@@ -8,9 +8,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from types import TracebackType
-from typing import IO
-
-from typing_extensions import Self
+from typing import IO, Self
 
 _HASH_ALGORITHM = "sha256"
 

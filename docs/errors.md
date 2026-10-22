@@ -381,8 +381,8 @@ This error indicates that the `.dist-info` directory that Sphinx Theme Builder
 needs to create for the package's metadata already exists, and was not
 overwritten.
 
-This is unusual, since the tool building the theme (such as `pip` or `build`)
-is expected to provide an empty directory for this.
+This is unusual, since the tool building the theme (such as `pip` or `build`) is
+expected to provide an empty directory for this.
 
 **What you can do:** Delete the directory shown in the error and try again.
 
