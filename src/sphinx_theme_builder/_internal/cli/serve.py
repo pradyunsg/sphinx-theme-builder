@@ -95,7 +95,9 @@ class ServeCommand:
         project = Project.from_cwd()
 
         default_re_ignore = f"{'|'.join(map(re.escape, project.compiled_assets))}"
-        re_ignore = f"{f'{re_ignore}|{default_re_ignore}'}"
+        re_ignore = "|".join(
+            pattern for pattern in (re_ignore, default_re_ignore) if pattern
+        )
 
         with tempfile.TemporaryDirectory() as build_directory:
             command = [
