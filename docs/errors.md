@@ -312,8 +312,8 @@ parallel builds are occurring in the same directory.
 
 ## missing-theme-conf
 
-This error indicates that the `theme.conf` file for the theme could not be
-located.
+This error indicates that neither `theme.toml` nor `theme.conf` could be located
+for the theme.
 
 This is typically a genuinely missing file, a symptom of a misconfiguration or
 incorrect filesystem layout of the package. The misconfiguration is typically
@@ -321,9 +321,9 @@ forgetting to set `theme-name` in `[tool.sphinx-theme-builder]` in
 pyproject.toml, when it does not match the PyPI package name.
 
 **What you can do:** Ensure that your theme name is correct and, if so,
-move/create the `theme.conf` file, in the expected location. If you're creating
-this file, you can find more details in
-[Sphinx's theme creation documentation](https://www.sphinx-doc.org/en/master/development/theming.html#creating-themes).
+move/create `theme.toml` or `theme.conf` in the expected location. If you're
+creating this file, see
+[Sphinx's theme creation documentation](https://www.sphinx-doc.org/en/master/development/html_themes/index.html#creating-themes).
 
 ## missing-javascript
 
@@ -350,30 +350,18 @@ pyproject.toml, when it does not match the PyPI package name.
 **What you can do:** Ensure that your theme name is correct and, if so, ensure
 that the CSS file is available in the expected location.
 
-## could-not-read-theme-conf
-
-This error indicates that `theme.conf` could not be read.
-
-Sphinx Theme Builder tries to read the `theme.conf` file of the theme being
-built, parse it and read certain configuration variables declared in it. This
-error is presented when that operation fails. More details are typically
-available from the "context" information provided in the error message (the line
-after "Could not open/parse).
-
-**What you can do:** Ensure that this file can be pasted as an INI file.
-
 ## theme-conf-incorrect-stylesheet
 
-This error indicates that the style file declared in `theme.conf` does not match
-the stylesheet that was expected based on the theme name.
+This error indicates that the stylesheet declared in `theme.toml` or
+`theme.conf` does not match the stylesheet expected based on the theme name.
 
 Sphinx Theme Builder enforces this consistency to make it easier to avoid
 collisions within derived themes and ensure that CSS file for the theme could
 not be located.
 
-**What you can do:** Update the filename of the CSS file in `theme.conf`, to
-match what is expected. You may also need to update your build system to
-generate the file in the corresponding location.
+**What you can do:** Include the expected CSS filename in the `stylesheets` list
+in `theme.toml`, or update `stylesheet` in `theme.conf`. You may also need to
+update your build system to generate the file in the corresponding location.
 
 ## metadata-directory-already-exists
 
@@ -381,8 +369,8 @@ This error indicates that the `.dist-info` directory that Sphinx Theme Builder
 needs to create for the package's metadata already exists, and was not
 overwritten.
 
-This is unusual, since the tool building the theme (such as `pip` or `build`)
-is expected to provide an empty directory for this.
+This is unusual, since the tool building the theme (such as `pip` or `build`) is
+expected to provide an empty directory for this.
 
 **What you can do:** Delete the directory shown in the error and try again.
 

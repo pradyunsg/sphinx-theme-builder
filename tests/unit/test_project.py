@@ -63,7 +63,7 @@ class TestProjectFromPath:
         assert project.theme_path == (
             tmp_path / "src" / "magic_project" / "theme" / "magic-project"
         )
-        assert project.theme_conf_path == (
+        assert project.theme_config_path == (
             tmp_path
             / "src"
             / "magic_project"

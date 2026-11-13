@@ -426,8 +426,13 @@ class Project:
         return self.python_package_path / "assets"
 
     @property
-    def theme_conf_path(self) -> Path:
-        return self.theme_path / "theme.conf"
+    def theme_config_path(self) -> Path:
+        theme_toml_path = self.theme_path / "theme.toml"
+        return (
+            theme_toml_path
+            if theme_toml_path.exists()
+            else self.theme_path / "theme.conf"
+        )
 
     @property
     def input_scripts_path(self) -> Path:
@@ -479,9 +484,9 @@ class Project:
             "This should've been validated in `Project.from_path`"
         )
 
-        if not self.theme_conf_path.exists():
+        if not self.theme_config_path.exists():
             raise InvalidProjectStructure(
-                message=f"{self.theme_conf_path} does not exist.",
+                message=f"Neither theme.conf nor theme.toml exists in {self.theme_path}.",
                 causes=["It is required for using sphinx-theme-builder."],
                 hint_stmt="Did you set the correct theme-name in pyproject.toml?",
                 code="missing-theme-conf",
@@ -509,24 +514,19 @@ class Project:
         expected_stylesheet = self.output_stylesheet_path.relative_to(
             self.theme_static_path
         ).as_posix()
-
         theme_conf_parser = configparser.ConfigParser()
-        try:
-            with self.theme_conf_path.open() as file:
-                theme_conf_parser.read_file(file, source=file.name)
-            specified_stylesheet = theme_conf_parser.get("theme", "stylesheet")
-        except (OSError, configparser.Error) as error:
-            raise InvalidProjectStructure(
-                message=f"Could not open/parse {self.theme_conf_path}.",
-                causes=[str(error)],
-                hint_stmt=None,
-                code="could-not-read-theme-conf",
-            ) from error
+        is_toml = self.theme_config_path.suffix == ".toml"
+        if is_toml:
+            conf = read_toml_file(self.theme_config_path)
+        else:
+            src = self.theme_config_path
+            conf = theme_conf_parser.read_string(src.read_text(), source=str(src))  # type: ignore
+        stylesheets = conf["theme"]["stylesheets" if is_toml else "stylesheet"]
 
-        if specified_stylesheet != expected_stylesheet:
+        if not isinstance(stylesheets, list) or expected_stylesheet not in stylesheets:
             raise InvalidProjectStructure(
-                message=f"Incorrect stylesheet set in {self.theme_conf_path}.",
-                causes=[f"Expected {expected_stylesheet}, got {specified_stylesheet}."],
+                message=f"Incorrect stylesheet set in {self.theme_config_path}.",
+                causes=[f"Expected {expected_stylesheet}, got {stylesheets}."],
                 hint_stmt=None,
                 code="theme-conf-incorrect-stylesheet",
             )
