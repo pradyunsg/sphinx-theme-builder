@@ -37,9 +37,8 @@ def _sdist_filter(
     """Create a filter to pass to tarfile.add, for this project."""
     compiled_assets = project.compiled_assets
     tracked_names = _get_vcs_tracked_names(project.location)
-    required_license_paths = {
-        os.fsdecode(fp) for fp in project.get_license_file_paths()
-    }
+    license_paths = [fp.as_posix() for fp in project.get_license_file_paths()]
+    required_license_paths = set(include_parent_paths(license_paths))
 
     def _filter(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo | None:
         # Include the entry for the root.
@@ -47,6 +46,10 @@ def _sdist_filter(
             return tarinfo
 
         name = tarinfo.name[len(base) + 1 :]
+
+        # Keep declared licenses and descend into their directories.
+        if name in required_license_paths:
+            return tarinfo
 
         # Exclude hidden files
         if name.startswith("."):
@@ -59,10 +62,6 @@ def _sdist_filter(
         # Exclude compiled assets.
         if name in compiled_assets:
             return None
-
-        # Never exclude license files.
-        if name in required_license_paths:
-            return tarinfo
 
         # Exclude things that are excluded from version control.
         if tracked_names is not None and name not in tracked_names:
@@ -146,7 +145,9 @@ def generate_metadata(
         dest_dir = dist_info / "licenses"
         dest_dir.mkdir()
         for fp in license_files:
-            copyfile(fp, dest_dir / fp)
+            target = dest_dir / fp
+            target.parent.mkdir(parents=True, exist_ok=True)
+            copyfile(fp, target)
 
     (dist_info / "METADATA").write_text(
         project.get_metadata_file_contents(), encoding="utf-8"
