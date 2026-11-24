@@ -2,7 +2,7 @@
 
 import ast
 import configparser
-import sys
+import tomllib
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,11 +12,6 @@ import pyproject_metadata
 from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
 from rich.text import Text
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
 
 from .errors import STBError
 
